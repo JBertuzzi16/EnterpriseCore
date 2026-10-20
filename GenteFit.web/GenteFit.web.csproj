@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GenteFit.Persistencia\GenteFit.Persistencia.csproj" />
+  </ItemGroup>
+
 </Project>

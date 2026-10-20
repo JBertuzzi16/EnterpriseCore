@@ -22,7 +22,7 @@ public class Monitor
 
     public bool Activo { get; set; } = true;
 
-    public int UsuarioID { get; set; }
+    public int UsuarioId { get; set; }
 
     public Usuario Usuario { get; set; } = null!;
     public List<Sesion> Sesiones { get; set; } = new List<Sesion>();
