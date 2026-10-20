@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="GenteFit.Persistencia/GenteFit.Persistencia.csproj" />
+  <Project Path="GenteFit.web/GenteFit.web.csproj" />
+</Solution>
