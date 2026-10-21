@@ -67,6 +67,12 @@ public class GenteFitDbContext:DbContext
             .HasForeignKey(r => r.SesionId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Sesion>()
+             .HasOne(s => s.Actividad)
+            .WithMany(a => a.Sesiones)
+            .HasForeignKey(s => s.ActividadId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // no puede haber dos clientes con el mismo DNI ni con el mismo email
 
         modelBuilder.Entity<Cliente>()

@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Crear sala";
+}
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success">
+        @mensaje
+    </div>
+}
+
+<h1>Crear sala</h1>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-controller="Salas" asp-action="Crear" method="post">
+    <div class="mb-3">
+        <label for="Nombre" class="form-label">Nombre</label>
+        <input id="Nombre"
+               name="Nombre"
+               class="form-control"
+               required />
+    </div>
+
+    <div class="mb-3">
+        <label for="Ubicacion" class="form-label">Ubicación</label>
+        <input id="Ubicacion"
+               name="Ubicacion"
+               class="form-control"
+               required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Guardar sala
+    </button>
+</form>

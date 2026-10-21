@@ -1,5 +1,6 @@
 using GenteFit.Persistencia.Datos;
 using Microsoft.EntityFrameworkCore;
+using GenteFit.Persistencia.Repositorios;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,8 @@ builder.Services.AddDbContext<GenteFitDbContext>(options =>
         builder.Configuration.GetConnectionString("GenteFit")
         ?? throw new InvalidOperationException(
             "No se encuentra la conexión GenteFit.")));
+
+builder.Services.AddScoped<SalaRepositorio>();
 
 var app = builder.Build();
 
