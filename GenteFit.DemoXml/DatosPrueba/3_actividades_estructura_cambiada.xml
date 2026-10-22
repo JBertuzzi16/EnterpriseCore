@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Estructura distinta: otra raíz, nodos anidados, atributos en lugar de elementos,
+     mayúsculas, nombres alternativos, datos que faltan, valores no válidos y elementos nuevos -->
+<GenteFit xmlns="http://gentefit.example/actividades">
+  <centro nombre="GenteFit Sant Cugat">
+    <clases>
+      <Clase codigo="10" Nombre="Body Combat" Intensidad="ALTA" Duracion="55">
+        <Precio>4.50</Precio>
+      </Clase>
+      <clase>
+        <titulo>Pilates</titulo>
+        <nivel>baja</nivel>
+        <minutos>50</minutos>
+        <monitor>Laura</monitor>
+      </clase>
+      <actividad>
+        <nombre>Core</nombre>
+        <intensidad>Muy alta</intensidad>
+        <duracion>sesenta</duracion>
+      </actividad>
+      <actividad>
+        <nombre>   Stretching
+        </nombre>
+      </actividad>
+      <actividad>
+        <descripcion>Registro sin nombre: se tiene que descartar</descripcion>
+        <duracion>30</duracion>
+      </actividad>
+    </clases>
+  </centro>
+</GenteFit>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actividades>
+  <actividad id="1">
+    <nombre>Zumba</nombre>
+    <descripcion>Baile aeróbico con música latina</descripcion>
+    <intensidad>Media</intensidad>
+    <duracion>60</duracion>
+  </actividad>
+  <actividad id="2">
+    <nombre>Body Pump</nombre>
+    <descripcion>Tonificación con barra y discos</descripcion>
+    <intensidad>Alta</intensidad>
+    <duracion>55</duracion>
+  </actividad>
+  <actividad id="3">
+    <nombre>Yoga</nombre>
+    <descripcion>Flexibilidad, respiración y relajación</descripcion>
+    <intensidad>Baja</intensidad>
+    <duracion>75</duracion>
+  </actividad>
+</actividades>
