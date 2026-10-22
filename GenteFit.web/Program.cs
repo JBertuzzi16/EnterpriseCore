@@ -14,6 +14,7 @@ builder.Services.AddDbContext<GenteFitDbContext>(options =>
             "No se encuentra la conexión GenteFit.")));
 
 builder.Services.AddScoped<SalaRepositorio>();
+builder.Services.AddScoped<ActividadRepositorio>();
 
 var app = builder.Build();
 
