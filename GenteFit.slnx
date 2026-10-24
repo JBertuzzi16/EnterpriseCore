@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="GenteFit.Comparativa/GenteFit.Comparativa.csproj" Id="2f45a2d6-c487-4b8b-b641-2ec243e5e4c8" />
   <Project Path="GenteFit.Persistencia/GenteFit.Persistencia.csproj" />
   <Project Path="GenteFit.web/GenteFit.web.csproj" />
 </Solution>
