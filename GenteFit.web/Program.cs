@@ -44,6 +44,7 @@ builder.Services.AddScoped<SalaRepositorio>();
 builder.Services.AddScoped<ActividadRepositorio>();
 builder.Services.AddScoped<UsuarioRepositorio>();
 builder.Services.AddScoped<ReservaRepositorio>();
+builder.Services.AddScoped<SesionRepositorio>();
 
 var app = builder.Build();
 
@@ -98,7 +99,17 @@ if (app.Environment.IsDevelopment())
     })
     .RequireAuthorization();
 }
+//TEMPORAL
 
+if (app.Environment.IsDevelopment())
+{
+    app.MapGet("/Pruebas/Sesiones",
+        async (SesionRepositorio repositorio) =>
+        {
+            return await repositorio.ObtenerProximasAsync();
+        })
+        .RequireAuthorization();
+}
 // Configuración de rutas MVC.
 app.MapControllerRoute(
     name: "default",
