@@ -1,0 +1,84 @@
+@model GenteFit.Web.Models.LoginViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inicio de sesión - GenteFit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Inter:wght@400&display=swap" />
+    <link rel="stylesheet" href="~/css/gentefit.css" asp-append-version="true" />
+</head>
+<body class="gf">
+
+    <header class="gf-cabecera">
+        <a class="gf-marca" href="#">
+            <img src="~/img/logo-header.png" alt="Logotipo de GenteFit" />
+            <div class="gf-marca-nombre">
+                <strong>GENTE FIT.</strong>
+                <span>Portal del cliente</span>
+            </div>
+        </a>
+
+        @* Enlaces del mockup. Todavía no tienen página; se enlazarán cuando existan. *@
+        <nav class="gf-menu" aria-label="Menú principal">
+            <a href="#">Inicio</a>
+            <a href="#">Clases</a>
+            <a href="#">El club</a>
+            <a href="#">Servicios</a>
+            <a href="#">Contacto</a>
+        </nav>
+
+        <a class="gf-suscripcion" href="#">Suscripción</a>
+    </header>
+
+    <main class="gf-principal">
+
+        <section class="gf-bienvenida">
+            <h1>¡Bienvenido/a!</h1>
+            <img src="~/img/logo-grande.png" alt="GenteFit Fitness Community" />
+            <p>Tu espacio para entrenar, reservar tus clases favoritas y superar tus metas cada día.</p>
+        </section>
+
+        <section class="gf-tarjeta-login" aria-labelledby="titulo-login">
+            <h2 id="titulo-login">Inicio de sesión</h2>
+
+            <form asp-action="Login" method="post" novalidate>
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <div asp-validation-summary="ModelOnly" class="gf-error gf-error-general" role="alert"></div>
+
+                <div class="gf-campo">
+                    <label asp-for="Email">Email</label>
+                    <input asp-for="Email" placeholder="Escribir email..." autocomplete="username" autofocus />
+                    <span asp-validation-for="Email" class="gf-error"></span>
+                </div>
+
+                <div class="gf-campo">
+                    <label asp-for="Contrasena">Contraseña</label>
+                    <input asp-for="Contrasena" placeholder="Escribir contraseña..." autocomplete="current-password" />
+                    <span asp-validation-for="Contrasena" class="gf-error"></span>
+                </div>
+
+                <p class="gf-socio">¿Aún no eres socio?</p>
+
+                <div class="gf-botones">
+                    @* El alta de clientes desde esta pantalla está pendiente de decidir *@
+                    <button type="button" class="gf-btn gf-btn-registro" disabled>Registrarte con nosotros</button>
+                    <button type="submit" class="gf-btn gf-btn-acceder">Acceder</button>
+                </div>
+            </form>
+        </section>
+
+    </main>
+
+    <footer class="gf-pie">
+        Gente Fit - Sistema de Gestión de Centros Deportivos
+    </footer>
+
+</body>
+</html>
