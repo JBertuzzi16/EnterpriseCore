@@ -1,0 +1,139 @@
+/* Portal del cliente. Complementa gentefit.css sin modificar los estilos del login. */
+.gf-portal-cliente {
+    background: linear-gradient(180deg, #f4f7fa 0%, #d7e7f1 45%, #a9cae2 100%);
+    color: #253f4b;
+}
+
+.gf-portal-cliente .gf-cabecera {
+    height: auto;
+    min-height: 100px;
+    gap: clamp(1rem, 2vw, 2rem);
+    padding: .9rem clamp(1rem, 2.5vw, 2.5rem);
+}
+
+.gf-portal-cliente .gf-menu {
+    gap: clamp(.65rem, 2.8vw, 2.5rem);
+}
+
+.gf-portal-cliente .gf-menu a {
+    display: inline-block;
+    padding: .45rem .2rem;
+    white-space: nowrap;
+    font-size: .83rem;
+    border-bottom: 3px solid transparent;
+}
+
+.gf-portal-cliente .gf-menu a:hover,
+.gf-portal-cliente .gf-menu a:focus-visible {
+    border-bottom-color: #d9e9f1;
+    text-decoration: none;
+}
+
+.gf-portal-cliente .gf-menu a.gf-nav-activo {
+    color: #e1f2fc;
+    border-bottom-color: #b6d6e7;
+}
+
+.gf-reservas-numero {
+    font-variant-numeric: tabular-nums;
+}
+
+.gf-sesion {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    flex: 0 0 auto;
+    color: white;
+}
+
+.gf-avatar {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #e8f1f5;
+    color: #37535f;
+    font-weight: 800;
+}
+
+.gf-sesion-nombre {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: .76rem;
+    font-weight: 700;
+}
+
+.gf-cerrar-sesion {
+    padding: .5rem .75rem;
+    border: 1px solid #c1d8e3;
+    border-radius: 999px;
+    background: transparent;
+    color: white;
+    font-family: inherit;
+    font-size: .71rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.gf-cerrar-sesion:hover,
+.gf-cerrar-sesion:focus-visible {
+    background: #1d3c4d;
+}
+
+.gf-cliente-contenido {
+    flex: 1;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3.5rem);
+}
+
+.gf-cliente-contenido h1 {
+    margin: 0 0 1rem;
+    color: #294b5a;
+    font-size: clamp(1.65rem, 3vw, 2.4rem);
+    font-weight: 800;
+}
+
+.gf-cliente-panel {
+    width: 100%;
+    max-width: 800px;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    border-radius: 24px;
+    background: #50666f;
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(21, 47, 60, .12);
+}
+
+.gf-cliente-panel p {
+    margin: 0;
+    line-height: 1.7;
+}
+
+.gf-portal-cliente .gf-cliente-pie {
+    height: auto;
+    min-height: 64px;
+    justify-content: space-between;
+    gap: .5rem 1.5rem;
+    flex-wrap: wrap;
+    color: #ecf4f7;
+}
+
+@media (max-width: 1050px) {
+    .gf-portal-cliente .gf-cabecera { flex-wrap: wrap; }
+    .gf-portal-cliente .gf-menu { order: 3; flex: 1 0 100%; justify-content: center; }
+    .gf-sesion { margin-left: auto; }
+}
+
+@media (max-width: 600px) {
+    .gf-portal-cliente .gf-marca img { height: 49px; }
+    .gf-portal-cliente .gf-marca-nombre strong { font-size: 1rem; }
+    .gf-portal-cliente .gf-marca-nombre span { font-size: .64rem; }
+    .gf-portal-cliente .gf-menu { gap: .35rem .9rem; justify-content: flex-start; }
+    .gf-portal-cliente .gf-menu a { font-size: .72rem; }
+    .gf-sesion { width: 100%; justify-content: flex-end; }
+    .gf-portal-cliente .gf-cliente-pie { padding: 1rem; }
+}

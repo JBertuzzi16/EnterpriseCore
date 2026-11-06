@@ -34,6 +34,7 @@ builder.Services.AddDbContext<GenteFitDbContext>(options =>
 builder.Services.AddScoped<SalaRepositorio>();
 builder.Services.AddScoped<ActividadRepositorio>();
 builder.Services.AddScoped<UsuarioRepositorio>();
+builder.Services.AddScoped<ReservaRepositorio>();
 
 var app = builder.Build();
 
