@@ -1,25 +1,128 @@
-﻿@model ErrorViewModel
+﻿@model GenteFit.web.Models.ErrorViewModel
+
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = "Ha ocurrido un error";
+    Layout = null;
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error - GenteFit</title>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+    <link rel="stylesheet"
+          href="~/css/gentefit.css"
+          asp-append-version="true" />
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+    <style>
+            .error-contenido {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 40px 20px;
+                background: #a9cae2;
+            }
+
+            .error-tarjeta {
+                background: #50666f;
+                color: white;
+                padding: 45px;
+                border-radius: 25px;
+                max-width: 550px;
+                width: 100%;
+                text-align: center;
+            }
+
+            .error-tarjeta h1 {
+                color: #d2d7da;
+                font-size: 1.8rem;
+                margin-bottom: 20px;
+            }
+
+            .error-tarjeta p {
+                line-height: 1.7;
+            }
+
+            .error-boton {
+                display: inline-block;
+                background: #1d3c4d;
+                color: white;
+                text-decoration: none;
+                padding: 12px 25px;
+                border-radius: 25px;
+                margin-top: 20px;
+                font-weight: 700;
+            }
+
+            .error-boton:hover {
+                background: #31586d;
+                color: white;
+            }
+
+            .error-referencia {
+                font-size: 0.8rem;
+                margin-top: 25px;
+                color: #d2d7da;
+                overflow-wrap: anywhere;
+            }
+    </style>
+</head>
+
+<body class="gf">
+
+    <header class="gf-cabecera">
+        <div class="gf-marca">
+            <img src="~/img/logo-header.png"
+                 alt="Logotipo de GenteFit" />
+
+            <div class="gf-marca-nombre">
+                <strong>GENTE FIT.</strong>
+                <span>Sistema de gestión</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="error-contenido">
+        <section class="error-tarjeta" aria-labelledby="titulo-error">
+
+            <h1 id="titulo-error">
+                No hemos podido completar la operación
+            </h1>
+
+            <p>
+                Se ha producido un problema inesperado
+                al procesar tu solicitud.
+            </p>
+
+            <p>
+                Inténtalo de nuevo dentro de unos momentos.
+                Si el problema continúa, contacta
+                con el personal del centro.
+            </p>
+
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="error-boton">
+                Volver al inicio
+            </a>
+
+            @if (Model?.ShowRequestId == true)
+            {
+                <p class="error-referencia">
+                    Referencia del error:
+                    <strong>@Model.RequestId</strong>
+                </p>
+            }
+
+        </section>
+    </main>
+
+    <footer class="gf-pie">
+        Gente Fit - Sistema de Gestión de Centros Deportivos
+    </footer>
+
+</body>
+</html>

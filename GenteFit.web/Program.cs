@@ -1,3 +1,4 @@
+
 using GenteFit.Persistencia.Datos;
 using GenteFit.Persistencia.Repositorios;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -7,14 +8,20 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Todas las páginas exigen sesión iniciada, salvo las marcadas con [AllowAnonymous] (login).
+// Todas las páginas requieren autenticación,
+// excepto las marcadas con [AllowAnonymous].
 builder.Services.AddControllersWithViews(opciones =>
 {
-    var politica = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    var politica = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+
     opciones.Filters.Add(new AuthorizeFilter(politica));
 });
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+// Autenticación mediante cookies.
+builder.Services.AddAuthentication(
+    CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opciones =>
     {
         opciones.LoginPath = "/Cuenta/Login";
@@ -25,12 +32,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         opciones.Cookie.Name = "GenteFit.Sesion";
     });
 
-builder.Services.AddDbContext<GenteFitDbContext>(options =>
-    options.UseSqlServer(
+// Conexión a SQL Server.
+builder.Services.AddDbContext<GenteFitDbContext>(opciones =>
+    opciones.UseSqlServer(
         builder.Configuration.GetConnectionString("GenteFit")
         ?? throw new InvalidOperationException(
             "No se encuentra la conexión GenteFit.")));
 
+// Repositorios.
 builder.Services.AddScoped<SalaRepositorio>();
 builder.Services.AddScoped<ActividadRepositorio>();
 builder.Services.AddScoped<UsuarioRepositorio>();
@@ -38,26 +47,35 @@ builder.Services.AddScoped<ReservaRepositorio>();
 
 var app = builder.Build();
 
-// En desarrollo: crea/actualiza la BD y los usuarios de prueba.
-// Si la BD no está disponible, la aplicación arranca igualmente y avisa en el log.
+// Preparación de la BD y usuarios de prueba.
+// Si SQL Server falla, se registra el problema
+// y la aplicación puede seguir arrancando.
 if (app.Environment.IsDevelopment())
 {
     using var ambito = app.Services.CreateScope();
+
     try
     {
-        var contexto = ambito.ServiceProvider.GetRequiredService<GenteFitDbContext>();
+        var contexto = ambito.ServiceProvider
+            .GetRequiredService<GenteFitDbContext>();
+
         contexto.Database.Migrate();
         DatosIniciales.Sembrar(contexto);
     }
     catch (Exception ex)
     {
-        app.Logger.LogWarning(ex, "No se pudo preparar la base de datos al arrancar.");
+        app.Logger.LogWarning(ex,
+            "No se pudo preparar la base de datos al arrancar.");
     }
 }
 
+// Tratamiento global de errores inesperados.
+// Se utiliza tanto en desarrollo como en producción.
+app.UseExceptionHandler("/Home/Error");
+
+// HSTS únicamente en producción.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
@@ -69,6 +87,19 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
+// Ruta temporal para comprobar los errores.
+// Solo existe cuando ejecutamos en desarrollo.
+if (app.Environment.IsDevelopment())
+{
+    app.MapGet("/Pruebas/Error", () =>
+    {
+        throw new InvalidOperationException(
+            "Error de prueba del sistema GenteFit.");
+    })
+    .RequireAuthorization();
+}
+
+// Configuración de rutas MVC.
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
