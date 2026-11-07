@@ -101,7 +101,7 @@ if (app.Environment.IsDevelopment())
 }
 //TEMPORAL
 
-if (app.Environment.IsDevelopment())
+/* if (app.Environment.IsDevelopment())
 {
     app.MapGet("/Pruebas/Sesiones",
         async (SesionRepositorio repositorio) =>
@@ -109,7 +109,7 @@ if (app.Environment.IsDevelopment())
             return await repositorio.ObtenerProximasAsync();
         })
         .RequireAuthorization();
-}
+} */
 // Configuración de rutas MVC.
 app.MapControllerRoute(
     name: "default",
