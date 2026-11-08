@@ -339,6 +339,140 @@ public class ReservaRepositorio
                 ex);
         }
     }
+    // Obtiene las reservas activas del cliente para
+    // las sesiones que aparecen en el catálogo.
+    public Task<Dictionary<int, EstadoReserva>>
+        ObtenerEstadosClienteAsync(
+            int clienteId,
+            IEnumerable<int> sesionesIds,
+            CancellationToken cancelacion = default)
+    {
+        int[] ids = sesionesIds.Distinct().ToArray();
+
+        if (clienteId <= 0 || ids.Length == 0)
+        {
+            return Task.FromResult(
+                new Dictionary<int, EstadoReserva>());
+        }
+
+        return _contexto.Reservas
+            .AsNoTracking()
+            .Where(r =>
+                r.ClienteId == clienteId &&
+                ids.Contains(r.SesionId) &&
+                r.Estado != EstadoReserva.ANULADA)
+            .Select(r => new
+            {
+                r.SesionId,
+                r.Estado
+            })
+            .ToDictionaryAsync(
+                r => r.SesionId,
+                r => r.Estado,
+                cancelacion);
+    }
+
+    // Anula la reserva activa de un cliente en una sesión.
+    // El clienteId debe obtenerse del usuario autenticado.
+    public async Task<ResultadoAnulacion> AnularPorSesionAsync(
+        int clienteId,
+        int sesionId,
+        CancellationToken cancelacion = default)
+    {
+        if (clienteId <= 0 || sesionId <= 0)
+        {
+            throw new GenteFitException(
+                "Los datos de la reserva no son válidos.");
+        }
+
+        // Localizamos únicamente una reserva activa
+        // que pertenezca al cliente indicado.
+        int? reservaId = await _contexto.Reservas
+            .AsNoTracking()
+            .Where(r =>
+                r.ClienteId == clienteId &&
+                r.SesionId == sesionId &&
+                r.Estado != EstadoReserva.ANULADA)
+            .Select(r => (int?)r.Id)
+            .SingleOrDefaultAsync(cancelacion);
+
+        if (!reservaId.HasValue)
+        {
+            throw new GenteFitException(
+                "No tienes ninguna reserva activa para esta sesión.");
+        }
+
+        // AnularAsync comprueba de nuevo la titularidad,
+        // valida la fecha y gestiona la lista de espera.
+        return await AnularAsync(
+            clienteId,
+            reservaId.Value,
+            cancelacion);
+    }
+
+    // Obtiene las reservas activas de un cliente
+    // e incluye su posición en lista de espera.
+    public Task<List<ReservaClienteResumen>>
+        ObtenerReservasClienteAsync(
+            int clienteId,
+            CancellationToken cancelacion = default)
+    {
+        if (clienteId <= 0)
+        {
+            return Task.FromResult(
+                new List<ReservaClienteResumen>());
+        }
+
+        return _contexto.Reservas
+            .AsNoTracking()
+            .Where(r =>
+                r.ClienteId == clienteId &&
+                r.Estado != EstadoReserva.ANULADA)
+            .OrderBy(r => r.Sesion.FechaHoraInicio)
+            .ThenBy(r => r.Id)
+            .Select(r => new ReservaClienteResumen
+            {
+                Id = r.Id,
+                SesionId = r.SesionId,
+
+                NombreActividad =
+                    r.Sesion.Actividad.Nombre,
+
+                NombreSala =
+                    r.Sesion.Sala.Nombre,
+
+                NombreMonitor =
+                    r.Sesion.Monitor.Nombre + " " +
+                    r.Sesion.Monitor.Apellidos,
+
+                FechaHoraInicio =
+                    r.Sesion.FechaHoraInicio,
+
+                FechaHoraFin =
+                    r.Sesion.FechaHoraFin,
+
+                Estado = r.Estado,
+
+                SesionAnulada = r.Sesion.Anulada,
+
+                PosicionEspera =
+                    r.Estado == EstadoReserva.EN_ESPERA
+                    ? (int?)_contexto.Reservas.Count(otra =>
+                        otra.SesionId == r.SesionId &&
+                        otra.Estado == EstadoReserva.EN_ESPERA &&
+                        (
+                            otra.FechaHoraReserva <
+                                r.FechaHoraReserva ||
+                            (
+                                otra.FechaHoraReserva ==
+                                    r.FechaHoraReserva &&
+                                otra.Id <= r.Id
+                            )
+                        ))
+                    : null
+            })
+            .ToListAsync(cancelacion);
+    }
 }
 public class ResultadoAnulacion
 {

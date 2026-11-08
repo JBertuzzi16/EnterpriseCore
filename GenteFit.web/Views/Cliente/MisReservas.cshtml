@@ -1,7 +1,181 @@
+@model GenteFit.Web.Models.MisReservasClienteViewModel
+@using GenteFit.Persistencia.Entidades
+
 @{
     ViewData["Title"] = "Mis Reservas";
+    DateTime ahora = DateTime.Now;
 }
-<h1>Mis Reservas</h1>
-<section class="gf-cliente-panel" aria-label="Mis reservas">
-    <p>Aquí podrás consultar tus reservas confirmadas y tus posiciones en la lista de espera.</p>
+
+<section class="gf-mis-reservas">
+
+    <header class="gf-mis-reservas-encabezado">
+        <h1>Mis Reservas</h1>
+        <p>
+            Consulta tus próximas clases, comprueba
+            tu posición en lista de espera y gestiona tus reservas.
+        </p>
+    </header>
+
+    @if (TempData["Exito"] is string exito)
+    {
+        <div class="gf-catalogo-aviso gf-catalogo-exito"
+             role="status">
+            @exito
+        </div>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="gf-catalogo-aviso" role="alert">
+            @error
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeError))
+    {
+        <div class="gf-catalogo-aviso" role="alert">
+            @Model.MensajeError
+        </div>
+    }
+    else if (Model.Reservas.Count == 0)
+    {
+        <div class="gf-catalogo-vacio">
+            <h2>Todavía no tienes reservas</h2>
+            <p>
+                Explora las actividades disponibles
+                y reserva tu próxima clase.
+            </p>
+
+            <a asp-controller="Cliente"
+               asp-action="Index"
+               class="gf-mis-reservas-enlace">
+                Ver actividades
+            </a>
+        </div>
+    }
+    else
+    {
+        <p class="gf-catalogo-total">
+            Reservas activas:
+            <strong>@Model.Reservas.Count</strong>
+        </p>
+
+        <div class="gf-mis-reservas-listado">
+
+            @foreach (var reserva in Model.Reservas)
+            {
+                bool haComenzado =
+                    reserva.FechaHoraInicio <= ahora;
+
+                bool puedeAnular =
+                    !haComenzado && !reserva.SesionAnulada;
+
+                <article class="gf-mis-reservas-tarjeta">
+
+                    <div class="gf-mis-reservas-cabecera">
+                        <div>
+                            <h2>@reserva.NombreActividad</h2>
+                            <span class="gf-mis-reservas-sala">
+                                @reserva.NombreSala
+                            </span>
+                        </div>
+
+                        @if (reserva.SesionAnulada)
+                        {
+                            <span class="gf-reserva-estado gf-reserva-anulada">
+                                SESIÓN ANULADA
+                            </span>
+                        }
+                        else if (haComenzado)
+                        {
+                            <span class="gf-reserva-estado gf-reserva-finalizada">
+                                FINALIZADA O EN CURSO
+                            </span>
+                        }
+                        else if (reserva.Estado ==
+                            EstadoReserva.CONFIRMADA)
+                        {
+                            <span class="gf-reserva-estado gf-reserva-confirmada">
+                                CONFIRMADA
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="gf-reserva-estado gf-reserva-espera">
+                                EN LISTA DE ESPERA
+                            </span>
+                        }
+                    </div>
+
+                    <div class="gf-mis-reservas-detalles">
+
+                        <p>
+                            <strong>Fecha:</strong>
+                            <time datetime="@reserva.FechaHoraInicio.ToString("yyyy-MM-ddTHH:mm:ss")">
+                                @reserva.FechaHoraInicio.ToString("dd/MM/yyyy")
+                            </time>
+                        </p>
+
+                        <p>
+                            <strong>Horario:</strong>
+                            @reserva.FechaHoraInicio.ToString("HH:mm")
+                            -
+                            @reserva.FechaHoraFin.ToString("HH:mm")
+                        </p>
+
+                        <p>
+                            <strong>Monitor:</strong>
+                            @reserva.NombreMonitor
+                        </p>
+
+                        @if (reserva.Estado ==
+                            EstadoReserva.EN_ESPERA &&
+                            puedeAnular &&
+                            reserva.PosicionEspera.HasValue)
+                        {
+                            <p class="gf-mis-reservas-posicion">
+                                <strong>Tu posición en espera:</strong>
+                                @reserva.PosicionEspera.Value
+                            </p>
+                        }
+                    </div>
+
+                    @if (puedeAnular)
+                    {
+                        <form asp-controller="Cliente"
+                              asp-action="Anular"
+                              asp-antiforgery="true"
+                              method="post"
+                              onsubmit="return confirm('¿Seguro que quieres anular esta reserva?');">
+
+                            <input type="hidden"
+                                   name="sesionId"
+                                   value="@reserva.SesionId" />
+
+                            <input type="hidden"
+                                   name="desdeMisReservas"
+                                   value="true" />
+
+                            <button type="submit"
+                                    class="gf-catalogo-reservar gf-catalogo-anular">
+                                @(reserva.Estado ==
+                                    EstadoReserva.EN_ESPERA
+                                    ? "Salir de la lista de espera"
+                                    : "Anular reserva")
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p class="gf-mis-reservas-no-anular">
+                            Esta sesión no admite anulaciones.
+                        </p>
+                    }
+
+                </article>
+            }
+
+        </div>
+    }
+
 </section>

@@ -45,6 +45,7 @@ builder.Services.AddScoped<ActividadRepositorio>();
 builder.Services.AddScoped<UsuarioRepositorio>();
 builder.Services.AddScoped<ReservaRepositorio>();
 builder.Services.AddScoped<SesionRepositorio>();
+builder.Services.AddScoped<ClienteRepositorio>();
 
 var app = builder.Build();
 
@@ -62,6 +63,7 @@ if (app.Environment.IsDevelopment())
 
         contexto.Database.Migrate();
         DatosIniciales.Sembrar(contexto);
+        DatosDemoCatalogo.Sembrar(contexto);
     }
     catch (Exception ex)
     {

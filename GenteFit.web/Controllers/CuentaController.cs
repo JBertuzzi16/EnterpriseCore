@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GenteFit.Web.Controllers;
 
-[AllowAnonymous]
 public class CuentaController : Controller
 {
     private readonly UsuarioRepositorio _usuarios;
@@ -23,6 +22,7 @@ public class CuentaController : Controller
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
     {
         if (User.Identity?.IsAuthenticated == true)
@@ -32,8 +32,10 @@ public class CuentaController : Controller
     }
 
     [HttpPost]
+    [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginViewModel modelo)
+    public async Task<IActionResult> Login(
+        LoginViewModel modelo)
     {
         if (!ModelState.IsValid)
             return View(modelo);
@@ -85,15 +87,19 @@ public class CuentaController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     [Authorize]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await HttpContext.SignOutAsync(
+              CookieAuthenticationDefaults.AuthenticationScheme);
+
         return RedirectToAction(nameof(Login));
     }
 
     [HttpGet]
+    [AllowAnonymous]
+
     public IActionResult AccesoDenegado()
     {
         return View();

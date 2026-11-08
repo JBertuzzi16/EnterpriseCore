@@ -1,7 +1,126 @@
+@model GenteFit.Web.Models.PerfilClienteViewModel
+
 @{
     ViewData["Title"] = "Mi Perfil";
 }
-<h1>Mi Perfil</h1>
-<section class="gf-cliente-panel" aria-label="Mi perfil">
-    <p>Aquí podrás consultar tus datos personales y la información de tu cuenta.</p>
+
+<section class="gf-perfil">
+
+    <header class="gf-perfil-encabezado">
+        <h1>Mi Perfil</h1>
+        <p>
+            Consulta tus datos personales
+            y la información de tu cuenta GenteFit.
+        </p>
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeError))
+    {
+        <div class="gf-catalogo-aviso" role="alert">
+            @Model.MensajeError
+        </div>
+    }
+    else if (Model.Perfil is { } perfil)
+    {
+        <div class="gf-perfil-contenedor">
+
+            <!-- Datos personales -->
+            <article class="gf-perfil-tarjeta">
+
+                <h2>Datos personales</h2>
+
+                <div class="gf-perfil-campos">
+
+                    <div class="gf-perfil-campo">
+                        <span>Nombre</span>
+                        <strong>@perfil.Nombre</strong>
+                    </div>
+
+                    <div class="gf-perfil-campo">
+                        <span>Apellidos</span>
+                        <strong>@perfil.Apellidos</strong>
+                    </div>
+
+                    <div class="gf-perfil-campo">
+                        <span>DNI</span>
+                        <strong>@perfil.Dni</strong>
+                    </div>
+
+                    <div class="gf-perfil-campo">
+                        <span>Fecha de nacimiento</span>
+                        <strong>
+                            @perfil.FechaNacimiento.ToString("dd/MM/yyyy")
+                        </strong>
+                    </div>
+
+                    <div class="gf-perfil-campo">
+                        <span>Correo electrónico</span>
+                        <strong>@perfil.Email</strong>
+                    </div>
+
+                    <div class="gf-perfil-campo">
+                        <span>Teléfono</span>
+                        <strong>@perfil.Telefono</strong>
+                    </div>
+
+                </div>
+
+            </article>
+
+            <!-- Información de la cuenta -->
+            <article class="gf-perfil-tarjeta">
+
+                <h2>Información de la cuenta</h2>
+
+                <div class="gf-perfil-campos">
+
+                    <div class="gf-perfil-campo">
+                        <span>Nombre de usuario</span>
+                        <strong>@perfil.NombreUsuario</strong>
+                    </div>
+
+                    <div class="gf-perfil-campo">
+                        <span>Email de acceso</span>
+                        <strong>@perfil.EmailCuenta</strong>
+                    </div>
+
+                    <div class="gf-perfil-campo">
+                        <span>Fecha de alta</span>
+                        <strong>
+                            @perfil.FechaAlta.ToString("dd/MM/yyyy")
+                        </strong>
+                    </div>
+
+                    <div class="gf-perfil-campo">
+                        <span>Estado de la cuenta</span>
+
+                        @if (perfil.Activo && perfil.CuentaActiva)
+                        {
+                            <strong class="gf-perfil-activo">
+                                Activa
+                            </strong>
+                        }
+                        else
+                        {
+                            <strong class="gf-perfil-inactivo">
+                                Inactiva
+                            </strong>
+                        }
+                    </div>
+
+                </div>
+
+            </article>
+
+        </div>
+
+        <div class="gf-perfil-informacion">
+            <p>
+                ¿Necesitas modificar tus datos?
+                Contacta con el personal de recepción
+                del centro deportivo.
+            </p>
+        </div>
+    }
+
 </section>

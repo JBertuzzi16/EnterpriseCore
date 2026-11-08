@@ -1,7 +1,273 @@
+@model GenteFit.Web.Models.CatalogoClienteViewModel
+@using GenteFit.Persistencia.Entidades
+
 @{
     ViewData["Title"] = "Actividades";
 }
-<h1>Catálogo de actividades</h1>
-<section class="gf-cliente-panel" aria-label="Catálogo de actividades">
-    <p>Muy pronto podrás consultar las sesiones disponibles y reservar tu plaza desde aquí.</p>
+
+<section class="gf-catalogo">
+
+    <header class="gf-catalogo-encabezado">
+        <h1>Catálogo de actividades</h1>
+        <p>
+            Consulta las próximas clases y descubre
+            las plazas disponibles.
+        </p>
+    </header>
+
+    @if (TempData["Exito"] is string mensajeExito)
+    {
+        <div class="gf-catalogo-aviso gf-catalogo-exito"
+             role="status">
+            @mensajeExito
+        </div>
+    }
+
+    @if (TempData["Error"] is string mensajeError)
+    {
+        <div class="gf-catalogo-aviso" role="alert">
+            @mensajeError
+        </div>
+    }
+
+    <!-- Filtros de actividades -->
+    <form asp-controller="Cliente"
+          asp-action="Index"
+          method="get"
+          class="gf-catalogo-filtros"
+          role="search">
+
+        <div class="gf-catalogo-filtro">
+            <label for="nombre">Buscar actividad</label>
+            <input type="search"
+                   id="nombre"
+                   name="nombre"
+                   value="@Model.Nombre"
+                   maxlength="80"
+                   placeholder="Ej. Yoga, Zumba..." />
+        </div>
+
+        <div class="gf-catalogo-filtro">
+            <label for="fecha">Fecha</label>
+            <input type="date"
+                   id="fecha"
+                   name="fecha"
+                   value="@(Model.Fecha?.ToString("yyyy-MM-dd"))" />
+        </div>
+
+        <div class="gf-catalogo-filtro">
+            <label for="intensidad">Intensidad</label>
+            <select id="intensidad" name="intensidad">
+                <option value="">Todas</option>
+
+                @foreach (var nivel in
+                    Enum.GetValues<NivelIntensidad>())
+                {
+                    if (Model.Intensidad == nivel)
+                    {
+                        <option value="@nivel" selected>
+                            @nivel
+                        </option>
+                    }
+                    else
+                    {
+                        <option value="@nivel">
+                            @nivel
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="gf-catalogo-acciones">
+            <button type="submit"
+                    class="gf-catalogo-filtrar">
+                Filtrar
+            </button>
+
+            <a asp-controller="Cliente"
+               asp-action="Index"
+               class="gf-catalogo-limpiar">
+                Limpiar
+            </a>
+        </div>
+    </form>
+
+    @if (!string.IsNullOrWhiteSpace(Model.MensajeError))
+    {
+        <div class="gf-catalogo-aviso" role="alert">
+            @Model.MensajeError
+        </div>
+    }
+    else if (Model.Sesiones.Count == 0)
+    {
+        <div class="gf-catalogo-vacio">
+            <h2>No hay sesiones disponibles</h2>
+            <p>
+                No hemos encontrado próximas sesiones
+                con los filtros seleccionados.
+            </p>
+            <p>
+                Prueba otra fecha o elimina los filtros.
+            </p>
+        </div>
+    }
+    else
+    {
+        <p class="gf-catalogo-total" aria-live="polite">
+            Sesiones encontradas:
+            <strong>@Model.Sesiones.Count</strong>
+        </p>
+
+        <div class="gf-catalogo-tarjetas">
+
+            @foreach (var sesion in Model.Sesiones)
+            {
+                bool tieneReserva =
+                    Model.EstadosCliente.TryGetValue(
+                        sesion.Id,
+                        out EstadoReserva estadoReserva);
+
+                <article class="gf-catalogo-tarjeta">
+
+                    <div class="gf-catalogo-superior">
+                        <span class="gf-catalogo-sala">
+                            @sesion.NombreSala
+                        </span>
+
+                        @if (tieneReserva)
+                        {
+                            <span class="gf-catalogo-disponible">
+                                @(estadoReserva ==
+                                    EstadoReserva.CONFIRMADA
+                                    ? "TU RESERVA"
+                                    : "EN LISTA DE ESPERA")
+                            </span>
+                        }
+                        else if (sesion.Completa)
+                        {
+                            <span class="gf-catalogo-completo">
+                                COMPLETO
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="gf-catalogo-disponible">
+                                PLAZAS DISPONIBLES
+                            </span>
+                        }
+                    </div>
+
+                    <div class="gf-catalogo-fecha">
+                        <time datetime="@sesion.FechaHoraInicio.ToString("yyyy-MM-ddTHH:mm:ss")">
+                            @sesion.FechaHoraInicio.ToString("dd/MM/yyyy")
+                        </time>
+                        <span>
+                            @sesion.FechaHoraInicio.ToString("HH:mm")
+                            -
+                            @sesion.FechaHoraFin.ToString("HH:mm")
+                        </span>
+                    </div>
+
+                    <h2>@sesion.NombreActividad</h2>
+
+                    <p class="gf-catalogo-descripcion">
+                        @sesion.Descripcion
+                    </p>
+
+                    <div class="gf-catalogo-detalles">
+                        <p>
+                            <strong>Monitor:</strong>
+                            @sesion.NombreMonitor
+                        </p>
+
+                        <p>
+                            <strong>Intensidad:</strong>
+                            @sesion.Intensidad
+                        </p>
+
+                        <p>
+                            <strong>Duración:</strong>
+                            @sesion.DuracionMinutos minutos
+                        </p>
+
+                        <p>
+                            <strong>Plazas libres:</strong>
+                            @sesion.PlazasLibres de @sesion.AforoMaximo
+                        </p>
+                    </div>
+
+                    @if (tieneReserva)
+                    {
+                        <form asp-controller="Cliente"
+                              asp-action="Anular"
+                              asp-antiforgery="true"
+                              method="post"
+                              onsubmit="return confirm('¿Seguro que quieres anular esta reserva?');">
+
+                            <input type="hidden"
+                                   name="sesionId"
+                                   value="@sesion.Id" />
+
+                            <!-- Mantener los filtros seleccionados -->
+                            <input type="hidden"
+                                   name="nombre"
+                                   value="@Model.Nombre" />
+
+                            <input type="hidden"
+                                   name="fecha"
+                                   value="@(Model.Fecha?.ToString("yyyy-MM-dd"))" />
+
+                            <input type="hidden"
+                                   name="intensidad"
+                                   value="@Model.Intensidad" />
+
+                            <button type="submit"
+                                    class="gf-catalogo-reservar gf-catalogo-anular">
+                                @(estadoReserva == EstadoReserva.EN_ESPERA
+                                    ? "Salir de la lista de espera"
+                                    : "Anular reserva")
+                            </button>
+                        </form>
+                    }
+
+                    else
+                    {
+                        <!-- Formulario protegido para reservar -->
+                        <form asp-controller="Cliente"
+                              asp-action="Reservar"
+                              asp-antiforgery="true"
+                              method="post">
+
+                            <input type="hidden"
+                                   name="sesionId"
+                                   value="@sesion.Id" />
+
+                            <!-- Conservamos los filtros -->
+                            <input type="hidden"
+                                   name="nombre"
+                                   value="@Model.Nombre" />
+
+                            <input type="hidden"
+                                   name="fecha"
+                                   value="@(Model.Fecha?.ToString("yyyy-MM-dd"))" />
+
+                            <input type="hidden"
+                                   name="intensidad"
+                                   value="@Model.Intensidad" />
+
+                            <button type="submit"
+                                    class="gf-catalogo-reservar">
+                                @(sesion.Completa
+                                    ? "Unirse a la lista de espera"
+                                    : "Reservar plaza")
+                            </button>
+                        </form>
+                    }
+
+                </article>
+            }
+        </div>
+    }
+
 </section>

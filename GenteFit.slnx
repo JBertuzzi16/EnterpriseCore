@@ -2,5 +2,6 @@
   <Project Path="GenteFit.DemoXml/GenteFit.DemoXml.csproj" />
   <Project Path="GenteFit.Persistencia/GenteFit.Persistencia.csproj" />
   <Project Path="GenteFit.PruebasReservas/GenteFit.PruebasReservas.csproj" Id="593f881b-66ab-4298-82dc-1941da6fe393" />
+  <Project Path="GenteFit.Tests/GenteFit.Tests.csproj" Id="8cb8589d-188c-41b3-819b-85276652e672" />
   <Project Path="GenteFit.web/GenteFit.web.csproj" />
 </Solution>
