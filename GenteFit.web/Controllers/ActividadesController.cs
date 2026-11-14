@@ -1,10 +1,13 @@
-﻿using GenteFit.Persistencia.Repositorios;
+﻿
+using GenteFit.Persistencia.Repositorios;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using GenteFit.Persistencia.Entidades;
 using Microsoft.EntityFrameworkCore;
 
 namespace GenteFit.Web.Controllers;
 
+[Authorize(Roles = "ENCARGADO,ADMIN")]
 public class ActividadesController : Controller
 {
     private readonly ActividadRepositorio _repositorio;
@@ -21,18 +24,20 @@ public class ActividadesController : Controller
 
         return View(actividades);
     }
+
     [HttpGet]
     public IActionResult Crear()
     {
         return View(new Actividad());
     }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Crear(
-    string? nombre,
-    string? descripcion,
-    int duracionMinutos,
-    NivelIntensidad intensidad)
+        string? nombre,
+        string? descripcion,
+        int duracionMinutos,
+        NivelIntensidad intensidad)
     {
         Actividad actividad = new Actividad
         {
@@ -76,14 +81,15 @@ public class ActividadesController : Controller
 
         return View(actividad);
     }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Editar(
-    int id,
-    string? nombre,
-    string? descripcion,
-    int duracionMinutos,
-    NivelIntensidad intensidad)
+        int id,
+        string? nombre,
+        string? descripcion,
+        int duracionMinutos,
+        NivelIntensidad intensidad)
     {
         Actividad? actividad = _repositorio.ObtenerPorId(id);
 
@@ -121,6 +127,7 @@ public class ActividadesController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Desactivar(int id)
@@ -132,7 +139,8 @@ public class ActividadesController : Controller
         }
         catch (DbUpdateException)
         {
-            TempData["Error"] = "No se ha podido desactivar la actividad.";
+            TempData["Error"] =
+                "No se ha podido desactivar la actividad.";
         }
 
         return RedirectToAction(nameof(Index));
@@ -149,7 +157,8 @@ public class ActividadesController : Controller
         }
         catch (DbUpdateException)
         {
-            TempData["Error"] = "No se ha podido activar la actividad.";
+            TempData["Error"] =
+                "No se ha podido activar la actividad.";
         }
 
         return RedirectToAction(nameof(Index));

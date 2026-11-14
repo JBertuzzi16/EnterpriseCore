@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Acentos, ñ, apóstrofos, ampersand y texto con símbolos < > -->
+<actividades>
+  <actividad id="4">
+    <nombre>Rock&apos;n&apos;Roll Fitness</nombre>
+    <descripcion>Coreografías de los años 50 para todos los niveles</descripcion>
+    <intensidad>Media</intensidad>
+    <duracion>45</duracion>
+  </actividad>
+  <actividad id="5">
+    <nombre>Cardio &amp; Tono</nombre>
+    <descripcion>Circuito de cardio y tonificación: ¡pura energía!</descripcion>
+    <intensidad>Alta</intensidad>
+    <duracion>50</duracion>
+  </actividad>
+  <actividad id="6">
+    <nombre>Ioga per a la gent gran: l'equilibri</nombre>
+    <descripcion><![CDATA[Sesión suave (nivel < 2) con ejercicios de equilibrio. Ideal para "mayores" y señoras/señores de +65 años.]]></descripcion>
+    <intensidad>Baja</intensidad>
+    <duracion>60</duracion>
+  </actividad>
+  <actividad id="7">
+    <nombre>Spinning con Begoña Muñoz</nombre>
+    <descripcion>Ciclismo indoor con música — pingüino, cigüeña, façana</descripcion>
+    <intensidad>Alta</intensidad>
+    <duracion>45</duracion>
+  </actividad>
+</actividades>

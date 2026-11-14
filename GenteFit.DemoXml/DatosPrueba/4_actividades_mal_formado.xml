@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<actividades>
+  <actividad id="1">
+    <nombre>Zumba</nombre>
+    <intensidad>Media</intensidad>
+  </actividad>
+  <actividad id="2">
+    <nombre>Body Pump</nombre>
+    <intensidad>Alta
+  </actividad>
+</actividades>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<clientes>
+  <cliente>
+    <dni>12345678Z</dni>
+    <nombre>María</nombre>
+    <apellidos>Pérez Ibáñez</apellidos>
+    <email>maria.perez@correo.es</email>
+    <telefono>600 111 222</telefono>
+    <fechaNacimiento>15/03/1990</fechaNacimiento>
+  </cliente>
+  <cliente dni="87654321-x" nombre="Sara" apellidos="O'Connor Muñoz" correo="sara@correo.es">
+    <nacimiento>1985-11-02</nacimiento>
+  </cliente>
+  <socio>
+    <nif>1234</nif>
+    <nombre>Jordi</nombre>
+    <apellidos>Puig i Ferrer</apellidos>
+    <fechaNacimiento>31/02/1992</fechaNacimiento>
+  </socio>
+  <cliente>
+    <nombre>Sin DNI</nombre>
+  </cliente>
+</clientes>

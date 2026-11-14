@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<actividades>
+  <actividad>
+    <nombre>Natación</nombre>
+    <descripcion>Técnica de crol y espalda en la piscina pequeña</descripcion>
+    <intensidad>Media</intensidad>
+    <duracion>45</duracion>
+  </actividad>
+  <actividad>
+    <nombre>Aquagym para niños</nombre>
+    <descripcion>Juegos en el agua (niños de 6 a 12 años)</descripcion>
+    <intensidad>Baja</intensidad>
+    <duracion>40</duracion>
+  </actividad>
+</actividades>

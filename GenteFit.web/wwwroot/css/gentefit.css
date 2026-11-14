@@ -1,0 +1,151 @@
+/* GenteFit - estilos comunes del diseño (Producto 1). Colores medidos del mockup de Figma. */
+:root {
+    --gf-cabecera: #5e7581;      /* cabecera y pie del portal del cliente */
+    --gf-cabecera-gestion: #1f1f1f; /* cabecera más oscura de los portales de gestión (encargado) */
+    --gf-azul-titulo: #9dbad0;   /* "GENTE FIT." y "¡Bienvenido/a!" */
+    --gf-pastilla: #1d3c4d;      /* botón SUSCRIPCIÓN y "Registrarte con nosotros" */
+    --gf-tarjeta: #50666f;       /* tarjeta oscura (login, listados) */
+    --gf-campo: #759baa;         /* campos de formulario */
+    --gf-campo-texto: #5b8196;   /* placeholder de los campos */
+    --gf-fondo-claro: #f4f7fa;
+    --gf-fondo-azul: #a9cae2;
+    --gf-texto-tarjeta: #d2d7da;
+    --gf-fuente: 'Montserrat', 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body.gf {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--gf-fuente);
+    color: #fff;
+    background: var(--gf-fondo-azul);
+}
+
+/* ---------- Cabecera ---------- */
+.gf-cabecera {
+    background: var(--gf-cabecera);
+    height: 100px;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0 1.25rem;
+}
+.gf-marca { display: flex; align-items: center; gap: 1.25rem; text-decoration: none; flex: 0 0 auto; }
+.gf-marca img { height: 68px; width: auto; display: block; }
+.gf-marca-nombre { line-height: 1.25; }
+.gf-marca-nombre strong { display: block; color: var(--gf-azul-titulo); font-size: 1.35rem; font-weight: 800; letter-spacing: .02em; }
+.gf-marca-nombre span { display: block; color: #fff; font-size: .82rem; font-weight: 700; text-transform: uppercase; }
+
+.gf-menu { flex: 1; display: flex; align-items: center; justify-content: center; gap: clamp(1rem, 4.5vw, 4.5rem); }
+.gf-menu a { color: #fff; font-size: .95rem; font-weight: 700; text-transform: uppercase; text-decoration: none; }
+.gf-menu a:hover { text-decoration: underline; }
+
+.gf-suscripcion {
+    background: var(--gf-pastilla);
+    color: #3b5b6c;
+    border-radius: 999px;
+    padding: .45rem 1.35rem;
+    font-size: .95rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-decoration: none;
+    flex: 0 0 auto;
+}
+
+/* ---------- Zona central ---------- */
+.gf-principal {
+    flex: 1;
+    min-height: 640px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    justify-items: center;
+    padding: 2rem 2rem 3rem;
+    background: linear-gradient(180deg,
+        #f3f7fa 0%, var(--gf-fondo-claro) 43%, #b8d3e4 53%, var(--gf-fondo-azul) 63%, var(--gf-fondo-azul) 100%);
+}
+
+.gf-bienvenida { text-align: center; max-width: 360px; }
+.gf-bienvenida h1 { margin: 0 0 1.1rem; color: #8fb0be; font-size: 1.9rem; font-weight: 800; }
+.gf-bienvenida img { width: 175px; height: auto; display: block; margin: 0 auto 1.4rem; }
+.gf-bienvenida p { margin: 0; color: #c3d6e2; font-size: .75rem; font-weight: 700; line-height: 1.4; }
+
+/* ---------- Tarjeta de inicio de sesión ---------- */
+.gf-tarjeta-login {
+    width: 100%;
+    max-width: 491px;
+    min-height: 491px;
+    background: var(--gf-tarjeta);
+    border-radius: 70px;
+    padding: 5.2rem 2.4rem 3rem 2.5rem;
+}
+.gf-tarjeta-login h2 { margin: 0 0 3rem; color: var(--gf-texto-tarjeta); font-size: 1.75rem; font-weight: 800; }
+
+.gf-campo { display: block; width: 100%; margin-bottom: 1.65rem; }
+.gf-campo label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } /* etiqueta solo para lectores de pantalla */
+.gf-campo input {
+    width: 100%;
+    height: 38px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--gf-campo);
+    color: #12303f;
+    font-family: inherit;
+    font-size: 1.05rem;
+    padding: 0 1.1rem;
+    outline: none;
+}
+.gf-campo input::placeholder { color: var(--gf-campo-texto); opacity: 1; }
+.gf-campo input:focus { box-shadow: 0 0 0 3px rgba(255, 255, 255, .55); }
+
+.gf-error { display: block; color: #ffc9c9; font-size: .78rem; font-weight: 600; margin: .35rem 0 0 1rem; }
+.gf-error-general { margin: -1.4rem 0 1.2rem 0; }
+
+.gf-socio { margin: -.6rem 0 .35rem 2.1rem; color: #8aa5b4; font-size: .72rem; font-family: Inter, var(--gf-fuente); }
+
+.gf-botones { display: flex; gap: .6rem; padding-left: .2rem; }
+.gf-btn {
+    flex: 1;
+    height: 38px;
+    border: 0;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: .88rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.gf-btn-registro { background: var(--gf-pastilla); color: #fff; }
+.gf-btn-registro[disabled] { opacity: .85; cursor: not-allowed; }
+.gf-btn-acceder { background: #fff; color: #4a6270; }
+.gf-btn-acceder:hover { background: #eef4f8; }
+
+/* ---------- Pie ---------- */
+.gf-pie {
+    background: var(--gf-cabecera);
+    height: 64px;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    color: #8fa4af;
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+/* ---------- Pantallas estrechas ---------- */
+@media (max-width: 900px) {
+    .gf-cabecera { height: auto; flex-wrap: wrap; padding: .75rem 1rem; }
+    .gf-menu { order: 3; flex-basis: 100%; flex-wrap: wrap; gap: .75rem 1.5rem; }
+    .gf-principal { grid-template-columns: 1fr; gap: 2rem; }
+    .gf-tarjeta-login { border-radius: 48px; padding: 3rem 1.5rem 2.5rem; min-height: 0; }
+}
+
+.gf-error-general ul { margin: 0; padding: 0; list-style: none; }
