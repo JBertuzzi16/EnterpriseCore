@@ -1,10 +1,13 @@
-﻿using GenteFit.Persistencia.Repositorios;
+﻿
+using GenteFit.Persistencia.Repositorios;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using GenteFit.Persistencia.Entidades;
 using Microsoft.EntityFrameworkCore;
 
 namespace GenteFit.Web.Controllers;
 
+[Authorize(Roles = "ENCARGADO,ADMIN")]
 public class SalasController : Controller
 {
     private readonly SalaRepositorio _repositorio;
@@ -155,5 +158,4 @@ public class SalasController : Controller
 
         return RedirectToAction(nameof(Index));
     }
-
 }

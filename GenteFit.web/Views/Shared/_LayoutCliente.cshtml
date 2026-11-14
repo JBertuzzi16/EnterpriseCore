@@ -1,0 +1,66 @@
+@{
+    string seccionActiva = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string nombreUsuario = User.Identity?.Name ?? "Cliente";
+    string inicial = string.IsNullOrWhiteSpace(nombreUsuario)
+        ? "C"
+        : nombreUsuario.Trim().Substring(0, 1).ToUpperInvariant();
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GenteFit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="~/css/gentefit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/gentefit-cliente.css" asp-append-version="true" />
+</head>
+<body class="gf gf-portal-cliente">
+    <header class="gf-cabecera">
+        <a class="gf-marca" asp-controller="Cliente" asp-action="Index" aria-label="GenteFit, ir a actividades">
+            <img src="~/img/logo-header.png" alt="Logotipo de GenteFit" />
+            <span class="gf-marca-nombre">
+                <strong>GENTE FIT.</strong>
+                <span>Portal del cliente</span>
+            </span>
+        </a>
+
+        <nav class="gf-menu" aria-label="Menú del cliente">
+            <a asp-controller="Cliente" asp-action="Index"
+               class="@(seccionActiva == "Index" ? "gf-nav-activo" : "")"
+               aria-current="@(seccionActiva == "Index" ? "page" : null)">Actividades</a>
+            <a asp-controller="Cliente" asp-action="MisReservas"
+               class="@(seccionActiva == "MisReservas" ? "gf-nav-activo" : "")"
+               aria-current="@(seccionActiva == "MisReservas" ? "page" : null)">
+                Mis Reservas (<span class="gf-reservas-numero">@await Component.InvokeAsync("ContadorReservas")</span>)
+            </a>
+            <a asp-controller="Cliente" asp-action="MiPerfil"
+               class="@(seccionActiva == "MiPerfil" ? "gf-nav-activo" : "")"
+               aria-current="@(seccionActiva == "MiPerfil" ? "page" : null)">Mi Perfil</a>
+        </nav>
+
+        <div class="gf-sesion">
+            <span class="gf-avatar" aria-hidden="true">@inicial</span>
+            <span class="gf-sesion-nombre" title="@nombreUsuario">@nombreUsuario</span>
+            <form asp-controller="Cuenta" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="gf-cerrar-sesion">Cerrar sesión</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="gf-cliente-contenido" id="contenido-principal">
+        @RenderBody()
+    </main>
+
+    <footer class="gf-pie gf-cliente-pie">
+        <span>Gente Fit - Sistema de Gestión de Centros Deportivos</span>
+        <span>Máximo 16 participantes por clase</span>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
