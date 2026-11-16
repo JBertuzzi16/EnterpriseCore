@@ -1,0 +1,4 @@
+@{
+    // El administrador ve estas pantallas dentro de su portal; el resto de roles, con el diseño general.
+    Layout = User.IsInRole("ADMIN") ? "_LayoutAdmin" : "_Layout";
+}

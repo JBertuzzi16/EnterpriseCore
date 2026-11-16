@@ -1,0 +1,77 @@
+@model UsuarioFormularioViewModel
+@{
+    ViewData["Title"] = Model.EsNuevo ? "Nuevo usuario" : "Editar usuario";
+    bool rolBloqueado = !Model.EsNuevo && (Model.TieneFicha || Model.EsUsuarioActual);
+    IEnumerable<Rol> roles = rolBloqueado ? new[] { Model.Rol } : GenteFit.Persistencia.Repositorios.AdminUsuarioRepositorio.RolesDePersonal;
+}
+
+<h1>@ViewData["Title"]</h1>
+<p class="gf-subtitulo">
+    @(Model.EsNuevo
+        ? "Cuenta de personal del centro. Los clientes se dan de alta desde recepción."
+        : $"Cuenta «{Model.NombreUsuario}»")
+</p>
+
+<section class="gf-bloque gf-formulario">
+    <form asp-action="@(Model.EsNuevo ? "CrearUsuario" : "EditarUsuario")" asp-route-id="@Model.Id" method="post" novalidate>
+        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
+
+        <div class="gf-campo-admin">
+            <label asp-for="NombreUsuario"></label>
+            <input asp-for="NombreUsuario" autocomplete="off" />
+            <span class="gf-ayuda">Letras, números, punto, guion y guion bajo.</span>
+            <span asp-validation-for="NombreUsuario" class="gf-campo-error"></span>
+        </div>
+
+        <div class="gf-campo-admin">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" type="email" autocomplete="off" />
+            <span asp-validation-for="Email" class="gf-campo-error"></span>
+        </div>
+
+        <div class="gf-campo-admin">
+            <label asp-for="Rol"></label>
+            <select asp-for="Rol" disabled="@rolBloqueado">
+                @foreach (Rol rol in roles)
+                {
+                    <option value="@rol" selected="@(rol == Model.Rol)">@AdminController.NombreRol(rol)</option>
+                }
+            </select>
+            @if (rolBloqueado)
+            {
+                <input type="hidden" asp-for="Rol" />
+                <span class="gf-ayuda">
+                    @(Model.EsUsuarioActual
+                        ? "No puedes cambiar tu propio rol."
+                        : "Esta cuenta está ligada a una ficha de cliente o monitor: el rol no se puede cambiar.")
+                </span>
+            }
+            else
+            {
+                <span class="gf-ayuda">Recepcionista: fichas de clientes y altas. Encargado: actividades, horarios y asistencia. Administrador: todo, incluidos usuarios e informes.</span>
+            }
+        </div>
+
+        @if (Model.EsNuevo)
+        {
+            <div class="gf-campos-dobles">
+                <div class="gf-campo-admin">
+                    <label asp-for="Contrasena"></label>
+                    <input asp-for="Contrasena" autocomplete="new-password" />
+                    <span asp-validation-for="Contrasena" class="gf-campo-error"></span>
+                </div>
+                <div class="gf-campo-admin">
+                    <label asp-for="ConfirmarContrasena"></label>
+                    <input asp-for="ConfirmarContrasena" autocomplete="new-password" />
+                    <span asp-validation-for="ConfirmarContrasena" class="gf-campo-error"></span>
+                </div>
+            </div>
+            <p class="gf-ayuda">Mínimo 8 caracteres, con letras y números. Comunícasela a la persona y pídele que la cambie.</p>
+        }
+
+        <div class="gf-acciones-fila">
+            <button type="submit" class="gf-boton">@(Model.EsNuevo ? "Crear usuario" : "Guardar cambios")</button>
+            <a asp-action="Usuarios" class="gf-boton gf-boton-secundario">Cancelar</a>
+        </div>
+    </form>
+</section>
