@@ -82,7 +82,7 @@ public class ConfiguracionController : Controller
         }
         else
         {
-            ResultadoLecturaXml<Actividad> lectura = new ActividadXmlLector().Leer(centro.RutaFuenteXml);
+            ResultadoLecturaXml<Actividad> lectura = new ActividadXmlLector().Leer(centro.RutaFuenteXml!);
             resultado.Avisos.AddRange(lectura.Avisos);
             resultado.Leidas = lectura.Elementos.Count;
 
@@ -142,6 +142,6 @@ public class ConfiguracionController : Controller
     {
         Centro = centro,
         RutaFicheroConfiguracion = _configuracion.RutaFichero,
-        FuenteXmlExiste = !string.IsNullOrWhiteSpace(centro.RutaFuenteXml) && System.IO.File.Exists(centro.RutaFuenteXml)
+        FuenteXmlExiste = !string.IsNullOrWhiteSpace(centro.RutaFuenteXml) && System.IO.File.Exists(centro.RutaFuenteXml.Trim())
     };
 }

@@ -82,18 +82,44 @@ if (args.Contains("--preparar-bd"))
                      Argumento("--admin-contrasena"),
                      args.Contains("--demo")))
         {
-            Console.WriteLine(paso);
+            RegistrarInstalacion(paso);
         }
 
+        RegistrarInstalacion("Base de datos preparada correctamente.");
         Environment.ExitCode = 0;
     }
     catch (Exception ex)
     {
-        Console.Error.WriteLine("No se ha podido preparar la base de datos: " + ex.Message);
+        RegistrarInstalacion("ERROR: no se ha podido preparar la base de datos: " + ex.Message);
+        if (ex.InnerException != null)
+            RegistrarInstalacion("Detalle: " + ex.InnerException.Message);
         Environment.ExitCode = 1;
     }
 
+    if (!Console.IsInputRedirected && Environment.UserInteractive && !args.Contains("--sin-pausa"))
+    {
+        // Lanzado desde el menú Inicio ("Reparar la base de datos"): se deja leer el resultado.
+        Console.WriteLine();
+        Console.WriteLine("Pulsa una tecla para cerrar.");
+        try { Console.ReadKey(true); } catch (InvalidOperationException) { }
+    }
+
     return;
+
+    // Muestra cada paso y lo guarda en preparar-bd.log (si la carpeta permite escribir).
+    void RegistrarInstalacion(string texto)
+    {
+        Console.WriteLine(texto);
+        try
+        {
+            File.AppendAllText(Path.Combine(AppContext.BaseDirectory, "preparar-bd.log"),
+                $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}  {texto}{Environment.NewLine}");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Sin permiso de escritura (por ejemplo, Archivos de programa sin elevar): solo consola.
+        }
+    }
 }
 
 // Preparación de la BD y usuarios de prueba.

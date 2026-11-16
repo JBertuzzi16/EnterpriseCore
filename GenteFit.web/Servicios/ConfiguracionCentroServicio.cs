@@ -4,6 +4,7 @@ using System.Text.Json;
 namespace GenteFit.Web.Servicios;
 
 // Datos del centro que el administrador puede cambiar sin tocar el código.
+// Los campos opcionales son "string?" para que ASP.NET Core no los marque como obligatorios.
 public class ConfiguracionCentro
 {
     [Required(ErrorMessage = "El nombre del centro es obligatorio.")]
@@ -13,16 +14,16 @@ public class ConfiguracionCentro
 
     [StringLength(150)]
     [Display(Name = "Dirección")]
-    public string Direccion { get; set; } = "";
+    public string? Direccion { get; set; } = "";
 
     [StringLength(30)]
     [Display(Name = "Teléfono")]
-    public string Telefono { get; set; } = "";
+    public string? Telefono { get; set; } = "";
 
     [EmailAddress(ErrorMessage = "El email de contacto no tiene un formato válido.")]
     [StringLength(254)]
     [Display(Name = "Email de contacto")]
-    public string EmailContacto { get; set; } = "";
+    public string? EmailContacto { get; set; } = "";
 
     [Display(Name = "Hora de apertura")]
     public TimeOnly HoraApertura { get; set; } = new(7, 0);
@@ -32,7 +33,7 @@ public class ConfiguracionCentro
 
     [StringLength(260)]
     [Display(Name = "Ruta de la fuente XML de actividades")]
-    public string RutaFuenteXml { get; set; } = "";
+    public string? RutaFuenteXml { get; set; } = "";
 }
 
 // Guarda la configuración en un fichero JSON en una carpeta con permiso de escritura

@@ -16,6 +16,10 @@
     --gf-admin-aviso: #7a5200;
     --gf-admin-aviso-fondo: #fff4d6;
 
+}
+
+/* body.gf (gentefit.css) pone fondo azul y texto blanco: se sobrescribe con la misma especificidad. */
+body.gf.gf-portal-admin {
     background: linear-gradient(180deg, #f4f7fa 0%, #e3eef5 55%, #cfe1ec 100%);
     color: var(--gf-admin-tinta);
 }
@@ -97,14 +101,16 @@
 .gf-boton-secundario:hover, .gf-boton-secundario:focus-visible { background: #e6f0f5; color: var(--gf-admin-acento); }
 .gf-boton-peligro { background: transparent; color: var(--gf-admin-error); border-color: var(--gf-admin-error); }
 .gf-boton-peligro:hover, .gf-boton-peligro:focus-visible { background: var(--gf-admin-error-fondo); color: var(--gf-admin-error); }
+.gf-boton:disabled { opacity: .45; cursor: not-allowed; }
 .gf-boton-pequeno { min-height: 30px; padding: .25rem .8rem; font-size: .75rem; }
 .gf-acciones-fila { display: flex; flex-wrap: wrap; gap: .4rem; }
+.gf-tabla .gf-acciones-fila { flex-wrap: nowrap; }
 .gf-acciones-fila form { margin: 0; }
 
 /* ---------- Tablas ---------- */
-.gf-tabla { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.gf-tabla { width: 100%; border-collapse: collapse; font-size: .86rem; color: var(--gf-admin-tinta); }
 .gf-tabla th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .03em; color: var(--gf-admin-tinta-suave); padding: .55rem .6rem; border-bottom: 2px solid var(--gf-admin-borde); white-space: nowrap; }
-.gf-tabla td { padding: .6rem; border-bottom: 1px solid var(--gf-admin-borde); vertical-align: middle; }
+.gf-tabla td { color: var(--gf-admin-tinta); padding: .6rem; border-bottom: 1px solid var(--gf-admin-borde); vertical-align: middle; }
 .gf-tabla tbody tr:hover { background: var(--gf-admin-fondo-fila); }
 .gf-tabla .gf-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .gf-tabla-vacia { color: var(--gf-admin-tinta-suave); font-style: italic; }
@@ -134,10 +140,11 @@
 /* ---------- Formularios ---------- */
 .gf-formulario { max-width: 640px; }
 .gf-filtros { display: flex; flex-wrap: wrap; gap: .8rem; align-items: flex-end; margin-bottom: 1.25rem; }
-.gf-filtros .gf-campo-admin { margin-bottom: 0; }
+.gf-filtros .gf-campo-admin { margin-bottom: 0; min-width: 170px; }
 .gf-campo-admin { display: flex; flex-direction: column; gap: .3rem; margin-bottom: 1rem; }
 .gf-campo-admin label { font-size: .78rem; font-weight: 700; color: var(--gf-admin-tinta); }
 .gf-campo-admin input, .gf-campo-admin select {
+    width: 100%; min-width: 0;
     min-height: 38px; padding: .4rem .8rem;
     border: 1px solid #b7cad4; border-radius: 10px; background: #fff;
     font-family: inherit; font-size: .9rem; color: var(--gf-admin-tinta);
@@ -146,7 +153,8 @@
 .gf-campo-admin input[readonly] { background: #f1f5f7; }
 .gf-ayuda { font-size: .76rem; color: var(--gf-admin-tinta-suave); }
 .gf-campo-error, .field-validation-error { font-size: .78rem; font-weight: 600; color: var(--gf-admin-error); }
-.gf-campos-dobles { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+.gf-campos-dobles { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 1rem; }
+.gf-campos-dobles > * { min-width: 0; }
 .validation-summary-errors ul { margin: 0; padding-left: 1.1rem; }
 
 /* ---------- Avisos ---------- */
@@ -163,7 +171,7 @@
 .gf-solo-impresion { display: none; }
 
 @media print {
-    .gf-portal-admin { background: #fff; }
+    body.gf.gf-portal-admin { background: #fff; }
     .gf-portal-admin .gf-cabecera, .gf-portal-admin .gf-admin-pie, .gf-no-imprimir, .gf-aviso { display: none !important; }
     .gf-solo-impresion { display: block; }
     .gf-admin-contenido { max-width: none; padding: 0; }
