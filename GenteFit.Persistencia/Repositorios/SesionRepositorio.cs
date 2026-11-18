@@ -2,6 +2,8 @@
 using GenteFit.Persistencia.Datos;
 using GenteFit.Persistencia.Entidades;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
+
 
 namespace GenteFit.Persistencia.Repositorios;
 
@@ -37,6 +39,33 @@ public class SesionRepositorio
     public SesionRepositorio(GenteFitDbContext contexto)
     {
         _contexto = contexto;
+    }
+
+    public List<Actividad> ObtenerActividadesActivas()
+    {
+        return _contexto.Actividades
+            .AsNoTracking()
+            .Where(a => a.Activa)
+            .OrderBy(a => a.Nombre)
+            .ToList();
+    }
+
+    public List<Sala> ObtenerSalasActivas()
+    {
+        return _contexto.Salas
+            .AsNoTracking()
+            .Where(a=>a.Activa)
+            .OrderBy(a =>a.Nombre)
+            .ToList() ;
+    }
+
+    public List<GenteFit.Persistencia.Entidades.Monitor> ObtenerMonitoresActivos()
+    {
+        return _contexto.Monitores
+            .AsNoTracking()
+            .Where(m => m.Activo)
+            .OrderBy(m => m.Nombre)
+            .ToList();
     }
 
     // Consulta las próximas sesiones disponibles para el cliente.
@@ -130,4 +159,60 @@ public class SesionRepositorio
                     r.Estado == EstadoReserva.CONFIRMADA)))
             .FirstOrDefaultAsync(cancelacion);
     }
+
+    public Sesion Crear (Sesion sesion)
+    {
+        ArgumentNullException.ThrowIfNull(sesion);
+
+        if (sesion.FechaHoraInicio <= DateTime.Now)
+            throw new ArgumentException(
+                "La sesión debe empezar en una fecha futura.");
+        if (sesion.FechaHoraFin <= sesion.FechaHoraInicio)
+            throw new ArgumentException(
+                "La hora de fin debe ser posterior al inicio.");
+
+        using var transaccion = _contexto.Database.BeginTransaction(
+            IsolationLevel.Serializable);
+
+        if(!_contexto.Actividades.Any(a=>
+        a.Id == sesion.SalaId && a.Activa))
+        {
+            throw new ArgumentException(
+                "Selecciona una actividad activa.");
+        }
+        if(!_contexto.Salas.Any(s=>
+        s.Id == sesion.SalaId && s.Activa))
+        {
+            throw new ArgumentException(
+                "Selecciona una sala activa.");
+        }
+        if(!_contexto.Monitores.Any(m=>
+        m.Id == sesion.MonitorId && m.Activo))
+        {
+            throw new ArgumentException(
+                "Selecciona un monitor activo.");
+        }
+
+        bool existeSolapamiento = _contexto.Sesiones.Any(s =>
+       !s.Anulada &&
+       s.FechaHoraInicio < sesion.FechaHoraFin &&
+       s.FechaHoraFin > sesion.FechaHoraInicio &&
+       (s.SalaId == sesion.SalaId ||
+        s.MonitorId == sesion.MonitorId));
+
+        if (existeSolapamiento)
+            throw new ArgumentException(
+                "La sala o el monitor ya están ocupados en ese horario.");
+
+        sesion.AforoMaximo = 16;
+        sesion.Anulada = false;
+
+        _contexto.Sesiones.Add(sesion);
+        _contexto.SaveChanges();
+
+        transaccion.Commit();
+
+        return sesion;
+    }
+
 }

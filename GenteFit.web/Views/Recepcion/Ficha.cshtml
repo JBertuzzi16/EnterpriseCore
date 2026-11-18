@@ -1,0 +1,134 @@
+﻿@using GenteFit.Persistencia.Entidades
+@model Cliente
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ficha de cliente - GenteFit</title>
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&amp;display=swap" />
+    <link rel="stylesheet" href="~/css/gentefit.css" asp-append-version="true" />
+
+    <style>
+            .gf-ficha {
+                padding: clamp(1.5rem, 4vw, 3rem);
+                min-height: auto;
+            }
+
+            .gf-ficha h2 {
+                margin-bottom: 1.5rem;
+                color: #fff;
+                overflow-wrap: anywhere;
+            }
+
+            .gf-ficha dl {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+                gap: .8rem 1rem;
+                margin: 0 0 1.75rem;
+                font-size: .9rem;
+                line-height: 1.4;
+            }
+
+            .gf-ficha dt {
+                font-weight: 700;
+                color: var(--gf-texto-tarjeta);
+            }
+
+            .gf-ficha dd {
+                margin: 0;
+                overflow-wrap: anywhere;
+            }
+
+            .gf-ficha .gf-btn {
+                width: 100%;
+            }
+    </style>
+</head>
+<body class="gf">
+    <header class="gf-cabecera">
+        <a class="gf-marca" asp-action="Index">
+            <img src="~/img/logo-header.png" alt="" />
+            <div class="gf-marca-nombre">
+                <strong>GENTE FIT.</strong>
+                <span>Recepción</span>
+            </div>
+        </a>
+    </header>
+
+    <main class="gf-principal">
+        <section class="gf-bienvenida">
+            <h1>Ficha de cliente</h1>
+            <img src="~/img/logo-grande.png" alt="GenteFit Fitness Community" />
+        </section>
+
+        <section class="gf-tarjeta-login gf-ficha" aria-labelledby="nombre-cliente">
+            <h2 id="nombre-cliente">@Model.Nombre @Model.Apellidos</h2>
+
+            <dl>
+                <dt>DNI</dt>
+                <dd>@Model.Dni</dd>
+
+                <dt>Correo electrónico</dt>
+                <dd>@Model.Email</dd>
+
+                <dt>Teléfono</dt>
+                <dd>@Model.Telefono</dd>
+
+                <dt>Fecha de nacimiento</dt>
+                <dd>@Model.FechaNacimiento.ToString("dd/MM/yyyy")</dd>
+
+                <dt>Fecha de alta</dt>
+                <dd>@Model.FechaAlta.ToString("dd/MM/yyyy")</dd>
+
+                <dt>Estado</dt>
+                <dd>@(Model.Activo ? "Activo" : "De baja")</dd>
+            </dl>
+
+            @if (TempData["BajaCorrecta"] is string mensaje)
+            {
+                <p role="status">@mensaje</p>
+            }
+
+            @if (TempData["ErrorBaja"] is string error)
+            {
+                <p role="alert">@error</p>
+            }
+
+            @if (Model.Activo)
+            {
+                <form asp-action="Baja" method="post"
+                      onsubmit="return confirm('¿Quieres dar de baja a este cliente?');">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="gf-btn gf-btn-registro">
+                        Dar de baja
+                    </button>
+                </form>
+            }
+            else
+            {
+                <form asp-action="Reactivar" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="gf-btn gf-btn-acceder">
+                        Reactivar cliente
+                    </button>
+                </form>
+            }
+            <a asp-action="Index" class="gf-btn gf-btn-acceder">
+                Volver al listado
+            </a>
+        </section>
+    </main>
+
+    <footer class="gf-pie">
+        Gente Fit - Sistema de Gestión de Centros Deportivos
+    </footer>
+</body>
+</html>

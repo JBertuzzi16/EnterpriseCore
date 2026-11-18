@@ -1,0 +1,69 @@
+﻿@model GenteFit.web.Models.CrearSesionViewModel
+
+@{
+    ViewData["Title"] = "Crear sesión";
+}
+
+<h1>Crear sesión</h1>
+
+@if (TempData["SesionCreada"] is string mensaje)
+{
+    <div class="alert alert-secces" role="status">
+        @mensaje
+    </div>
+}
+
+<form asp-action="Crear" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="ActividadId" class="form-label">Actividad</label>
+        <select asp-for="ActividadId"
+                asp-items="Model.Actividades"
+                class="form-select">
+            <option value="">Selecciona una actividad</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SalaId" class="form-label">Sala</label>
+        <select asp-for="SalaId"
+                asp-items="Model.Salas"
+                class="form-select">
+            <option value="">Selecciona una sala</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="MonitorId" class="form-label">Monitor</label>
+        <select asp-for="MonitorId"
+                asp-items="Model.Monitores"
+                class="form-select">
+            <option value="">Selecciona un monitor</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FechaHoraInicio" class="form-label">
+            Fecha y hora de inicio
+        </label>
+        <input asp-for="FechaHoraInicio"
+               type="datetime-local"
+               class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FechaHoraFin" class="form-label">
+            Fecha y hora de fin
+        </label>
+        <input asp-for="FechaHoraFin"
+               type="datetime-local"
+               class="form-control" />
+    </div>
+
+    <p>Aforo: 16 participantes.</p>
+
+    <button type="submit" class="btn btn-primary" >
+        Crear sesión
+    </button>
+</form>

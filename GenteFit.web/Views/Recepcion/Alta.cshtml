@@ -1,0 +1,49 @@
+﻿@model GenteFit.web.Models.AltaClienteViewModel
+
+@{
+    ViewData["Title"] = "Alta de cliente";
+}
+
+<h1>Alta de cliente</h1>
+
+<form asp-action="Alta" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Nombre" class="form-label">Nombre</label>
+        <input asp-for="Nombre" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Apellidos" class="form-label">Apellidos</label>
+        <input asp-for="Apellidos" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Dni" class="form-label">DNI</label>
+        <input asp-for="Dni" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label">Correo electrónico</label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Telefono" class="form-label">Teléfono</label>
+        <input asp-for="Telefono" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FechaNacimiento" class="form-label">Fecha de nacimiento</label>
+        <input asp-for="FechaNacimiento" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Contrasena" class="form-label">Contraseña inicial</label>
+        <input asp-for="Contrasena" class="form-control" autocomplete="new-password" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Dar de alta</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>

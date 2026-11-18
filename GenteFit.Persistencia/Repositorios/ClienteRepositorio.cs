@@ -1,6 +1,8 @@
 ﻿using GenteFit.Persistencia.Datos;
 using GenteFit.Persistencia.Entidades;
 using Microsoft.EntityFrameworkCore;
+using GenteFit.Persistencia.Seguridad;
+
 
 namespace GenteFit.Persistencia.Repositorios;
 
@@ -68,5 +70,77 @@ public class ClienteRepositorio
                 CuentaActiva = c.Usuario.Activo
             })
             .SingleOrDefaultAsync(cancelacion);
+    }
+
+    public Cliente Crear (Cliente cliente, string contrasena)
+    {
+        cliente.Dni = cliente.Dni.Trim().ToUpperInvariant();
+        cliente.Email = cliente.Email.Trim().ToUpperInvariant();
+
+        if (_contexto.Clientes.Any(c => c.Dni.Equals(cliente.Dni)))
+            throw new ArgumentException("Ya existe un cliente con ese número de DNI");
+        if(_contexto.Clientes.Any(c=>c.Email.Equals(cliente.Email) ||_contexto.Usuarios.Any(u => u.Email.Equals(cliente.Email))))
+        {
+            throw new ArgumentException("Correo ya está registrado");
+        }
+
+        cliente.Usuario = new Usuario
+        {
+            NombreUsuario = $"cliente_{Guid.NewGuid():N}",
+            Email = cliente.Email,
+            HashContrasena = HashContrasena.Crear(contrasena),
+            Rol = Rol.CLIENTE,
+            Activo = true
+        };
+
+        cliente.FechaAlta = DateTime.Today;
+        cliente.Activo = true;
+        _contexto.Clientes.Add(cliente);
+        _contexto.SaveChanges();
+
+        return cliente;
+
+    }
+
+    public bool DarDeBaja(int id)
+    {
+        var cliente = _contexto.Clientes.Include(c=>c.Usuario).SingleOrDefault(c=>c.Id.Equals(id));
+
+        if (cliente == null)
+            return false;
+
+        var ahora = DateTime.Now;
+
+        bool tieneReservasPendientes = _contexto.Reservas.Any(
+            r=>r.ClienteId.Equals(id) && 
+            !r.Sesion.Anulada && 
+            r.Sesion.FechaHoraInicio>ahora 
+            && (r.Estado.Equals(EstadoReserva.CONFIRMADA)
+            ||r.Estado.Equals(EstadoReserva.EN_ESPERA)));
+
+        if (tieneReservasPendientes)
+            throw new InvalidOperationException("El cliente tiene reservas futuras. Anúlalas antes de darlo de baja.");
+
+        cliente.Activo = false;
+        cliente.Usuario.Activo = false;
+        _contexto.SaveChanges();
+        return true;
+
+    }
+
+    public bool Reactivar (int id)
+    {
+        var cliente = _contexto.Clientes
+       .Include(c => c.Usuario)
+       .SingleOrDefault(c => c.Id == id);
+
+        if (cliente == null)
+            return false;
+
+        cliente.Activo = true;
+        cliente.Usuario.Activo = true;
+        _contexto.SaveChanges();
+
+        return true;
     }
 }
