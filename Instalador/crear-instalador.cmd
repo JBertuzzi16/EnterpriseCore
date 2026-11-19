@@ -3,7 +3,7 @@ rem ==========================================================================
 rem  Genera el instalador de GenteFit (Instalador\Salida\setup.exe).
 rem  Requisitos en el equipo del desarrollador:
 rem    - SDK de .NET 10 (viene con Visual Studio 2026)
-rem    - Inno Setup 6 (https://jrsoftware.org/isdl.php)
+rem    - Inno Setup 6 o 7 (https://jrsoftware.org/isdl.php)
 rem  Uso: doble clic sobre este fichero.
 rem ==========================================================================
 setlocal
@@ -26,9 +26,12 @@ set "ISCC="
 if exist "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe" set "ISCC=%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe"
 if exist "%ProgramFiles%\Inno Setup 6\ISCC.exe" set "ISCC=%ProgramFiles%\Inno Setup 6\ISCC.exe"
 if exist "%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe" set "ISCC=%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe"
+if exist "%ProgramFiles(x86)%\Inno Setup 7\ISCC.exe" set "ISCC=%ProgramFiles(x86)%\Inno Setup 7\ISCC.exe"
+if exist "%ProgramFiles%\Inno Setup 7\ISCC.exe" set "ISCC=%ProgramFiles%\Inno Setup 7\ISCC.exe"
+if exist "%LOCALAPPDATA%\Programs\Inno Setup 7\ISCC.exe" set "ISCC=%LOCALAPPDATA%\Programs\Inno Setup 7\ISCC.exe"
 if not defined ISCC (
     echo.
-    echo No se encuentra Inno Setup 6. Instalalo desde https://jrsoftware.org/isdl.php y vuelve a ejecutar este fichero.
+    echo No se encuentra Inno Setup ^(version 6 o 7^). Instalalo desde https://jrsoftware.org/isdl.php y vuelve a ejecutar este fichero.
     goto error
 )
 

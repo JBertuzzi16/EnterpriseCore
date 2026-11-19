@@ -1,6 +1,6 @@
 ﻿; =============================================================================
 ;  Instalador de GenteFit (Producto 3 - FP.059)
-;  Se compila con Inno Setup 6 (https://jrsoftware.org/isinfo.php).
+;  Se compila con Inno Setup 6 o 7 (https://jrsoftware.org/isinfo.php).
 ;  No lo compiles a mano: ejecuta crear-instalador.cmd, que primero publica la
 ;  aplicación en la carpeta "publicacion" y después genera Salida\setup.exe.
 ;
