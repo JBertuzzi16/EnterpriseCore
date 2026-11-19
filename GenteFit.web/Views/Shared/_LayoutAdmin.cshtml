@@ -1,0 +1,83 @@
+@inject GenteFit.Web.Servicios.ConfiguracionCentroServicio ConfiguracionCentro
+@{
+    string controlador = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    string accion = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string nombreUsuario = User.Identity?.Name ?? "Administrador";
+    string inicial = string.IsNullOrWhiteSpace(nombreUsuario) ? "A" : nombreUsuario.Trim()[..1].ToUpperInvariant();
+    var centro = ConfiguracionCentro.Obtener();
+
+    string Activo(string c, string? a = null) =>
+        controlador == c && (a == null || accion == a) ? "gf-nav-activo" : "";
+    string? Actual(string c, string? a = null) =>
+        controlador == c && (a == null || accion == a) ? "page" : null;
+    bool enUsuarios = controlador == "Admin" && accion != "Index";
+    // Salas y Actividades ya muestran sus propios mensajes.
+    bool mostrarMensajes = controlador is "Admin" or "Informes" or "Configuracion";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Administración @centro.NombreCentro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" />
+    @* Bootstrap solo para las pantallas compartidas con el encargado (Salas, Actividades). *@
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/gentefit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/gentefit-cliente.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/gentefit-admin.css" asp-append-version="true" />
+</head>
+<body class="gf gf-portal-admin">
+    <a class="gf-saltar" href="#contenido-principal">Saltar al contenido</a>
+
+    <header class="gf-cabecera">
+        <a class="gf-marca" asp-controller="Admin" asp-action="Index" aria-label="Ir al panel de administración">
+            <img src="~/img/logo-header.png" alt="Logotipo de GenteFit" />
+            <span class="gf-marca-nombre">
+                <strong>GENTE FIT.</strong>
+                <span>Administración</span>
+            </span>
+        </a>
+
+        <nav class="gf-menu" aria-label="Menú de administración">
+            <a asp-controller="Admin" asp-action="Index" class="@Activo("Admin", "Index")" aria-current="@Actual("Admin", "Index")">Panel</a>
+            <a asp-controller="Admin" asp-action="Usuarios" class="@(enUsuarios ? "gf-nav-activo" : "")" aria-current="@(enUsuarios ? "page" : null)">Usuarios</a>
+            <a asp-controller="Informes" asp-action="Index" class="@Activo("Informes")" aria-current="@Actual("Informes")">Informes</a>
+            <a asp-controller="Configuracion" asp-action="Index" class="@Activo("Configuracion")" aria-current="@Actual("Configuracion")">Configuración</a>
+            <a asp-controller="Salas" asp-action="Index">Salas</a>
+            <a asp-controller="Actividades" asp-action="Index">Actividades</a>
+        </nav>
+
+        <div class="gf-sesion">
+            <span class="gf-avatar" aria-hidden="true">@inicial</span>
+            <span class="gf-sesion-nombre" title="@nombreUsuario">@nombreUsuario</span>
+            <form asp-controller="Cuenta" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="gf-cerrar-sesion">Cerrar sesión</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="gf-admin-contenido" id="contenido-principal">
+        @if (mostrarMensajes && TempData["Exito"] is string exito)
+        {
+            <div class="gf-aviso gf-aviso-exito" role="status">@exito</div>
+        }
+        @if (mostrarMensajes && TempData["Error"] is string error)
+        {
+            <div class="gf-aviso gf-aviso-error" role="alert">@error</div>
+        }
+
+        @RenderBody()
+    </main>
+
+    <footer class="gf-pie gf-admin-pie">
+        <span>@centro.NombreCentro - Panel de administración</span>
+        <span>Horario: @centro.HoraApertura.ToString("HH:mm") - @centro.HoraCierre.ToString("HH:mm")</span>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,34 @@
+@model RestablecerContrasenaViewModel
+@{
+    ViewData["Title"] = "Cambiar contraseña";
+}
+
+<h1>Cambiar contraseña</h1>
+<p class="gf-subtitulo">Cuenta «@Model.NombreUsuario»</p>
+
+<section class="gf-bloque gf-formulario">
+    <form asp-action="RestablecerContrasena" method="post" novalidate>
+        <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="NombreUsuario" />
+
+        <div class="gf-campos-dobles">
+            <div class="gf-campo-admin">
+                <label asp-for="Contrasena"></label>
+                <input asp-for="Contrasena" autocomplete="new-password" />
+                <span asp-validation-for="Contrasena" class="gf-campo-error"></span>
+            </div>
+            <div class="gf-campo-admin">
+                <label asp-for="ConfirmarContrasena"></label>
+                <input asp-for="ConfirmarContrasena" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmarContrasena" class="gf-campo-error"></span>
+            </div>
+        </div>
+        <p class="gf-ayuda">Mínimo 8 caracteres, con letras y números. La contraseña anterior deja de funcionar al guardar.</p>
+
+        <div class="gf-acciones-fila">
+            <button type="submit" class="gf-boton">Guardar contraseña</button>
+            <a asp-action="Usuarios" class="gf-boton gf-boton-secundario">Cancelar</a>
+        </div>
+    </form>
+</section>

@@ -1,0 +1,123 @@
+@model ListaUsuariosViewModel
+@{
+    ViewData["Title"] = "Usuarios";
+}
+
+<div class="gf-encabezado-pagina">
+    <div>
+        <h1>Usuarios y roles</h1>
+        <p class="gf-subtitulo">Cuentas que pueden iniciar sesión en GenteFit</p>
+    </div>
+    <a class="gf-boton" asp-action="CrearUsuario">Nuevo usuario</a>
+</div>
+
+<form method="get" asp-action="Usuarios" class="gf-filtros" role="search">
+    <div class="gf-campo-admin">
+        <label for="texto">Buscar</label>
+        <input id="texto" name="texto" value="@Model.Texto" placeholder="Nombre de usuario o email" />
+    </div>
+    <div class="gf-campo-admin">
+        <label for="rol">Rol</label>
+        <select id="rol" name="rol">
+            <option value="">Todos</option>
+            @foreach (Rol rol in Enum.GetValues<Rol>())
+            {
+                <option value="@rol" selected="@(Model.Rol == rol)">@AdminController.NombreRol(rol)</option>
+            }
+        </select>
+    </div>
+    <div class="gf-campo-admin">
+        <label for="activo">Estado</label>
+        <select id="activo" name="activo">
+            <option value="">Todos</option>
+            <option value="true" selected="@(Model.Activo == true)">Activos</option>
+            <option value="false" selected="@(Model.Activo == false)">Desactivados</option>
+        </select>
+    </div>
+    <button type="submit" class="gf-boton">Filtrar</button>
+    <a asp-action="Usuarios" class="gf-boton gf-boton-secundario">Limpiar</a>
+</form>
+
+<section class="gf-bloque">
+    @if (Model.Usuarios.Count == 0)
+    {
+        <p class="gf-tabla-vacia">No hay usuarios que coincidan con el filtro.</p>
+    }
+    else
+    {
+        <table class="gf-tabla">
+            <caption class="gf-ayuda" style="caption-side: bottom; text-align: left; padding-top: .6rem;">
+                @Model.Usuarios.Count usuario(s). Las cuentas de cliente y de monitor están ligadas a su ficha: su rol no se cambia desde aquí.
+            </caption>
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Ficha</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model.Usuarios)
+                {
+                    bool esActual = u.Id == Model.IdUsuarioActual;
+                    <tr>
+                        <td>
+                            <strong>@u.NombreUsuario</strong>
+                            @if (esActual)
+                            {
+                                <span class="gf-etiqueta gf-etiqueta-tu">Tú</span>
+                            }
+                        </td>
+                        <td>@u.Email</td>
+                        <td><span class="gf-etiqueta gf-etiqueta-rol">@AdminController.NombreRol(u.Rol)</span></td>
+                        <td>
+                            @if (u.Cliente != null)
+                            {
+                                @($"{u.Cliente.Nombre} {u.Cliente.Apellidos}")
+                            }
+                            else if (u.Monitor != null)
+                            {
+                                @($"{u.Monitor.Nombre} {u.Monitor.Apellidos}")
+                            }
+                            else
+                            {
+                                <span class="gf-ayuda">Personal</span>
+                            }
+                        </td>
+                        <td>
+                            @if (u.Activo)
+                            {
+                                <span class="gf-etiqueta gf-etiqueta-activa">Activa</span>
+                            }
+                            else
+                            {
+                                <span class="gf-etiqueta gf-etiqueta-inactiva">Desactivada</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="gf-acciones-fila">
+                                <a class="gf-boton gf-boton-secundario gf-boton-pequeno" asp-action="EditarUsuario" asp-route-id="@u.Id">Editar</a>
+                                <a class="gf-boton gf-boton-secundario gf-boton-pequeno" asp-action="RestablecerContrasena" asp-route-id="@u.Id">Contraseña</a>
+                                @if (u.Activo && !esActual)
+                                {
+                                    <form asp-action="Desactivar" asp-route-id="@u.Id" method="post">
+                                        <button type="submit" class="gf-boton gf-boton-peligro gf-boton-pequeno">Desactivar</button>
+                                    </form>
+                                }
+                                else if (!u.Activo)
+                                {
+                                    <form asp-action="Activar" asp-route-id="@u.Id" method="post">
+                                        <button type="submit" class="gf-boton gf-boton-pequeno">Activar</button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

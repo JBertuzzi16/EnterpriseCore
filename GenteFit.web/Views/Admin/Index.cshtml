@@ -1,0 +1,95 @@
+@model PanelAdminViewModel
+@{
+    ViewData["Title"] = "Panel";
+    var r = Model.ResumenSemana;
+    Rol[] orden = { Rol.ADMIN, Rol.RECEPCIONISTA, Rol.ENCARGADO, Rol.MONITOR, Rol.CLIENTE };
+}
+
+<div class="gf-encabezado-pagina">
+    <div>
+        <h1>Panel de administración</h1>
+        <p class="gf-subtitulo">@Model.NombreCentro · resumen de los últimos 7 días</p>
+    </div>
+    <div class="gf-accesos">
+        <a class="gf-boton" asp-action="CrearUsuario">Nuevo usuario</a>
+        <a class="gf-boton gf-boton-secundario" asp-controller="Informes" asp-action="Index">Ver informes</a>
+    </div>
+</div>
+
+<section class="gf-cifras" aria-label="Cifras de los últimos 7 días">
+    <div class="gf-cifra">
+        <span class="gf-cifra-valor">@r.ClientesActivos</span>
+        <span class="gf-cifra-etiqueta">Clientes activos</span>
+        <span class="gf-cifra-detalle">@r.AltasEnPeriodo altas esta semana</span>
+    </div>
+    <div class="gf-cifra">
+        <span class="gf-cifra-valor">@r.SesionesProgramadas</span>
+        <span class="gf-cifra-etiqueta">Sesiones</span>
+        <span class="gf-cifra-detalle">en los últimos 7 días</span>
+    </div>
+    <div class="gf-cifra">
+        <span class="gf-cifra-valor">@r.ReservasConfirmadas</span>
+        <span class="gf-cifra-etiqueta">Reservas confirmadas</span>
+        <span class="gf-cifra-detalle">@r.ReservasEnEspera en lista de espera</span>
+    </div>
+    <div class="gf-cifra">
+        <span class="gf-cifra-valor">@r.OcupacionMediaPorcentaje.ToString("0.0")&nbsp;%</span>
+        <span class="gf-cifra-etiqueta">Ocupación media</span>
+        <span class="gf-cifra-detalle">@r.TasaAnulacionPorcentaje.ToString("0.0")&nbsp;% de anulaciones</span>
+    </div>
+</section>
+
+<div class="gf-rejilla">
+    <section class="gf-bloque" aria-labelledby="titulo-proximas">
+        <h2 id="titulo-proximas">Próximas sesiones</h2>
+        @if (Model.ProximasSesiones.Count == 0)
+        {
+            <p class="gf-tabla-vacia">No hay sesiones programadas en los próximos 7 días.</p>
+        }
+        else
+        {
+            <table class="gf-tabla">
+                <thead>
+                    <tr><th>Cuándo</th><th>Actividad</th><th class="gf-num">Plazas</th><th>Estado</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model.ProximasSesiones)
+                    {
+                        <tr>
+                            <td>@s.Inicio.ToString("ddd dd/MM HH:mm")</td>
+                            <td>@s.Actividad<br /><span class="gf-ayuda">@s.Sala</span></td>
+                            <td class="gf-num">@s.Confirmadas / @s.Aforo</td>
+                            <td>
+                                @if (s.Completa)
+                                {
+                                    <span class="gf-etiqueta gf-etiqueta-completa">Completa@(s.EnEspera > 0 ? $" · {s.EnEspera} en espera" : "")</span>
+                                }
+                                else
+                                {
+                                    <span class="gf-etiqueta gf-etiqueta-activa">@s.PlazasLibres libres</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
+
+    <section class="gf-bloque" aria-labelledby="titulo-usuarios">
+        <h2 id="titulo-usuarios">Cuentas activas por rol</h2>
+        <table class="gf-tabla">
+            <thead><tr><th>Rol</th><th class="gf-num">Cuentas</th></tr></thead>
+            <tbody>
+                @foreach (Rol rol in orden)
+                {
+                    <tr>
+                        <td><a asp-action="Usuarios" asp-route-rol="@rol" asp-route-activo="true">@AdminController.NombreRol(rol)</a></td>
+                        <td class="gf-num">@(Model.UsuariosPorRol.TryGetValue(rol, out int total) ? total : 0)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <p class="gf-ayuda">Desde Usuarios puedes crear cuentas de personal, cambiar roles y desactivar accesos.</p>
+    </section>
+</div>
