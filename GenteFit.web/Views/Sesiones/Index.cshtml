@@ -2,11 +2,112 @@
 @model List<Sesion>
 
 @{
-    ViewData["Title"] = "Sesiones";
+    ViewData["Title"] = "Gestión de sesiones";
     var ahora = DateTime.Now;
 }
 
-<h1>Sesiones</h1>
+<style>
+    /* Estados de las sesiones */
+    .gf-estado-sesion {
+        display: inline-block;
+        padding: 5px 11px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .gf-estado-programada {
+        background-color: #dcefe5;
+        color: #216747;
+    }
+
+    .gf-estado-encurso {
+        background-color: #fff0d2;
+        color: #94600b;
+    }
+
+    .gf-estado-finalizada {
+        background-color: #e6eaed;
+        color: #52616b;
+    }
+
+    .gf-estado-anulada {
+        background-color: #f6dfe2;
+        color: #a24350;
+    }
+
+    /* Acciones de las sesiones */
+    .gf-sesiones-acciones {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 7px;
+    }
+
+        .gf-sesiones-acciones form {
+            margin: 0;
+        }
+
+        .gf-sesiones-acciones .gf-btn-accion {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 88px;
+            padding: 8px 12px;
+            border: 1px solid transparent;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.2;
+            text-decoration: none;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .gf-sesiones-acciones .gf-btn-editar {
+            background-color: #35586b;
+            color: white;
+        }
+
+            .gf-sesiones-acciones .gf-btn-editar:hover {
+                background-color: #243e4d;
+                color: white;
+            }
+
+        .gf-sesiones-acciones .gf-btn-cancelar {
+            background-color: #b7636d;
+            color: white;
+        }
+
+            .gf-sesiones-acciones .gf-btn-cancelar:hover {
+                background-color: #994a54;
+                color: white;
+            }
+
+        .gf-sesiones-acciones .gf-btn-asistencia {
+            background-color: #1b3d50;
+            color: white;
+        }
+
+            .gf-sesiones-acciones .gf-btn-asistencia:hover {
+                background-color: #112b3a;
+                color: white;
+            }
+
+    .gf-tabla-sesiones {
+        vertical-align: middle;
+    }
+
+        .gf-tabla-sesiones th {
+            white-space: nowrap;
+        }
+
+        .gf-tabla-sesiones .gf-fecha {
+            white-space: nowrap;
+        }
+</style>
 
 @if (TempData["Mensaje"] is string mensaje)
 {
@@ -22,99 +123,147 @@
     </div>
 }
 
-<a asp-action="Crear" class="btn btn-primary">
-    Crear sesión
-</a>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="mb-1">Gestión de sesiones</h1>
+        <p class="text-muted mb-0">
+            Consulta, programa y administra las sesiones de GenteFit.
+        </p>
+    </div>
+
+    <a asp-controller="Sesiones"
+       asp-action="Crear"
+       class="btn btn-primary">
+        + Nueva sesión
+    </a>
+</div>
 
 @if (Model.Count == 0)
 {
-    <p class="mt-3">No hay sesiones registradas.</p>
+    <div class="alert alert-info">
+        Todavía no hay sesiones registradas.
+        Puedes crear la primera utilizando
+        el botón «Nueva sesión».
+    </div>
 }
 else
 {
     <div class="table-responsive">
-        <table class="table">
-            <thead>
+        <table class="table table-striped table-hover gf-tabla-sesiones">
+            <thead class="table-light">
                 <tr>
-                    <th>ID</th>
-                    <th>Actividad</th>
-                    <th>Inicio</th>
-                    <th>Fin</th>
-                    <th>Sala</th>
-                    <th>Monitor</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Actividad</th>
+                    <th scope="col">Inicio</th>
+                    <th scope="col">Fin</th>
+                    <th scope="col">Sala</th>
+                    <th scope="col">Monitor</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
                 </tr>
             </thead>
 
             <tbody>
-                @foreach (var sesion in Model)
+                @foreach (var sesion in Model.OrderBy(s => s.Id))
                 {
                     <tr>
                         <td>@sesion.Id</td>
-                        <td>@sesion.Actividad.Nombre</td>
-                        <td>
+
+                        <td class="fw-semibold">
+                            @sesion.Actividad.Nombre
+                        </td>
+
+                        <td class="gf-fecha">
                             @sesion.FechaHoraInicio.ToString("dd/MM/yyyy HH:mm")
                         </td>
-                        <td>
+
+                        <td class="gf-fecha">
                             @sesion.FechaHoraFin.ToString("dd/MM/yyyy HH:mm")
                         </td>
-                        <td>@sesion.Sala.Nombre</td>
+
                         <td>
-                            @sesion.Monitor.Nombre @sesion.Monitor.Apellidos
+                            @sesion.Sala.Nombre
                         </td>
+
+                        <td>
+                            @sesion.Monitor.Nombre
+                            @sesion.Monitor.Apellidos
+                        </td>
+
                         <td>
                             @if (sesion.Anulada)
                             {
-                                <span>Anulada</span>
+                                <span class="gf-estado-sesion gf-estado-anulada">
+                                    Anulada
+                                </span>
                             }
                             else if (sesion.FechaHoraFin <= ahora)
                             {
-                                <span>Finalizada</span>
+                                <span class="gf-estado-sesion gf-estado-finalizada">
+                                    Finalizada
+                                </span>
                             }
                             else if (sesion.FechaHoraInicio <= ahora)
                             {
-                                <span>En curso</span>
+                                <span class="gf-estado-sesion gf-estado-encurso">
+                                    En curso
+                                </span>
                             }
                             else
                             {
-                                <span>Programada</span>
+                                <span class="gf-estado-sesion gf-estado-programada">
+                                    Programada
+                                </span>
                             }
                         </td>
+
                         <td>
-                            @if (!sesion.Anulada &&
-                                 sesion.FechaHoraInicio > ahora)
-                            {
-                                <div class="d-flex flex-wrap gap-2">
-                                    <a asp-action="Editar"
+                            <div class="gf-sesiones-acciones">
+
+                                @if (!sesion.Anulada &&
+                                     sesion.FechaHoraInicio > ahora)
+                                {
+                                    <a asp-controller="Sesiones"
+                                       asp-action="Editar"
                                        asp-route-id="@sesion.Id"
-                                       class="btn btn-secondary btn-sm">
+                                       class="gf-btn-accion gf-btn-editar">
                                         Editar
                                     </a>
 
-                                    <form asp-action="Cancelar"
+                                    <form asp-controller="Sesiones"
+                                          asp-action="Cancelar"
                                           method="post"
-                                          onsubmit="return confirm('¿Cancelar esta sesión y sus reservas?');">
+                                          onsubmit="return confirm('¿Seguro que quieres cancelar esta sesión y sus reservas?');">
+
+                                        @Html.AntiForgeryToken()
+
                                         <input type="hidden"
                                                name="id"
                                                value="@sesion.Id" />
 
                                         <button type="submit"
-                                                class="btn btn-warning btn-sm">
+                                                class="gf-btn-accion gf-btn-cancelar">
                                             Cancelar
                                         </button>
                                     </form>
-                                </div>
-                            }
-                            @if (!sesion.Anulada)
-                            {
-                                <a asp-action="Asistencia"
-                                   asp-route-id="@sesion.Id"
-                                   class="btn btn-primary btn-sm">
-                                    Asistencia
-                                </a>
-                            }
+                                }
 
+                                @if (!sesion.Anulada)
+                                {
+                                    <a asp-controller="Sesiones"
+                                       asp-action="Asistencia"
+                                       asp-route-id="@sesion.Id"
+                                       class="gf-btn-accion gf-btn-asistencia">
+                                        Asistencia
+                                    </a>
+                                }
+
+                                @if (sesion.Anulada)
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+
+                            </div>
                         </td>
                     </tr>
                 }

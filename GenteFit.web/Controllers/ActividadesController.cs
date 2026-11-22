@@ -20,7 +20,9 @@ public class ActividadesController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        var actividades = _repositorio.ObtenerTodas();
+        var actividades = _repositorio.ObtenerTodas()
+            .OrderBy(a => a.Id)
+            .ToList();
 
         return View(actividades);
     }

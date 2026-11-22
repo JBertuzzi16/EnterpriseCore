@@ -68,7 +68,9 @@ public class SalasController : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        var salas = _repositorio.ObtenerTodas();
+        var salas = _repositorio.ObtenerTodas()
+            .OrderBy(s => s.Id)
+            .ToList();
 
         return View(salas);
     }

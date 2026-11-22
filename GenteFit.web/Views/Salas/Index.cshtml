@@ -1,77 +1,193 @@
 ﻿@model List<GenteFit.Persistencia.Entidades.Sala>
 
 @{
-    ViewData["Title"] = "Salas";
+    ViewData["Title"] = "Gestión de salas";
 }
+
+<style>
+    .gf-acciones-tabla {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 8px;
+    }
+
+        .gf-acciones-tabla form {
+            margin: 0;
+        }
+
+        .gf-acciones-tabla .gf-btn-tabla {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 100px;
+            padding: 8px 14px;
+            border: 1px solid transparent;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.2;
+            text-decoration: none;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background-color 0.2s ease;
+        }
+
+        .gf-acciones-tabla .gf-btn-editar {
+            background-color: #35586b;
+            color: white;
+        }
+
+            .gf-acciones-tabla .gf-btn-editar:hover {
+                background-color: #243e4d;
+                color: white;
+            }
+
+        .gf-acciones-tabla .gf-btn-desactivar {
+            background-color: #b7636d;
+            color: white;
+        }
+
+            .gf-acciones-tabla .gf-btn-desactivar:hover {
+                background-color: #994a54;
+                color: white;
+            }
+
+        .gf-acciones-tabla .gf-btn-activar {
+            background-color: #48866e;
+            color: white;
+        }
+
+            .gf-acciones-tabla .gf-btn-activar:hover {
+                background-color: #356a55;
+                color: white;
+            }
+</style>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="mb-1">Gestión de salas</h1>
+        <p class="text-muted mb-0">
+            Consulta, modifica y administra las salas de GenteFit.
+        </p>
+    </div>
+
+    <a asp-controller="Salas"
+       asp-action="Crear"
+       class="btn btn-primary">
+        + Nueva sala
+    </a>
+</div>
+
 @if (TempData["Error"] is string error)
 {
-    <div class="alert alert-danger">@error</div>
+    <div class="alert alert-danger" role="alert">
+        @error
+    </div>
 }
-
-<h1>Salas</h1>
-
-<a asp-controller="Salas" asp-action="Crear" class="btn btn-primary">
-    Crear sala
-</a>
 
 @if (Model.Count == 0)
 {
-    <p>No hay salas registradas.</p>
+    <div class="alert alert-info">
+        Todavía no hay salas registradas.
+        Puedes añadir la primera utilizando
+        el botón «Nueva sala».
+    </div>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nombre</th>
-                <th>Ubicación</th>
-                <th>Activa</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var sala in Model)
-            {
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-light">
                 <tr>
-                    <td>@sala.Id</td>
-                    <td>@sala.Nombre</td>
-                    <td>@sala.Ubicacion</td>
-                    <td>@(sala.Activa ? "Sí" : "No")</td>
-                    <td>
-                        <a asp-action="Editar"
-                           asp-route-id="@sala.Id"
-                           class="btn btn-secondary btn-sm">
-                            Editar
-                        </a>
-
-                        @if (sala.Activa)
-                        {
-                            <form asp-action="Desactivar"
-                                  method="post"
-                                  class="d-inline">
-                                <input type="hidden" name="id" value="@sala.Id" />
-
-                                <button type="submit" class="btn btn-warning btn-sm">
-                                    Desactivar
-                                </button>
-                            </form>
-                        }
-                        else
-                        {
-                            <form asp-action="Activar"
-                                  method="post"
-                                  class="d-inline">
-                                <input type="hidden" name="id" value="@sala.Id" />
-
-                                <button type="submit" class="btn btn-success btn-sm">
-                                    Activar
-                                </button>
-                            </form>
-                        }
-                    </td>
+                    <th scope="col">ID</th>
+                    <th scope="col">Sala</th>
+                    <th scope="col">Ubicación</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+
+            <tbody>
+                @foreach (var sala in Model)
+                {
+                    <tr>
+                        <td>@sala.Id</td>
+
+                        <td class="fw-semibold">
+                            @sala.Nombre
+                        </td>
+
+                        <td>@sala.Ubicacion</td>
+
+                        <td>
+                            @if (sala.Activa)
+                            {
+                                <span class="badge bg-success">
+                                    Activa
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Inactiva
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="gf-acciones-tabla">
+
+                                <a asp-controller="Salas"
+                                   asp-action="Editar"
+                                   asp-route-id="@sala.Id"
+                                   class="gf-btn-tabla gf-btn-editar">
+                                    Editar
+                                </a>
+
+                                @if (sala.Activa)
+                                {
+                                    <form asp-controller="Salas"
+                                          asp-action="Desactivar"
+                                          method="post"
+                                          onsubmit="return confirm('¿Seguro que quieres desactivar esta sala?');">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@sala.Id" />
+
+                                        <button type="submit"
+                                                class="gf-btn-tabla gf-btn-desactivar">
+                                            Desactivar
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Salas"
+                                          asp-action="Activar"
+                                          method="post">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@sala.Id" />
+
+                                        <button type="submit"
+                                                class="gf-btn-tabla gf-btn-activar">
+                                            Activar
+                                        </button>
+                                    </form>
+                                }
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
