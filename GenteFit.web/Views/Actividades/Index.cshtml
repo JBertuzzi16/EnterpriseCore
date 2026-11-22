@@ -1,73 +1,206 @@
 ﻿@model List<GenteFit.Persistencia.Entidades.Actividad>
 
 @{
-    ViewData["Title"] = "Actividades";
+    ViewData["Title"] = "Gestión de actividades";
 }
 
-<h1>Actividades</h1>
-<a asp-action="Crear" class="btn btn-primary">Crear actividad</a>
+
+<style>
+    /* Contenedor de los botones */
+    .gf-acciones-tabla {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 8px;
+    }
+
+    /* Estilo común de los botones */
+    .gf-acciones-tabla .gf-btn-tabla {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 100px;
+        padding: 8px 14px;
+        border: 1px solid transparent;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.2;
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Botón Editar: azul petróleo */
+    .gf-acciones-tabla .gf-btn-editar {
+        background-color: #35586b;
+        color: white;
+    }
+
+    .gf-acciones-tabla .gf-btn-editar:hover {
+        background-color: #243e4d;
+        color: white;
+    }
+
+    /* Botón Desactivar: rojo suave */
+    .gf-acciones-tabla .gf-btn-desactivar {
+        background-color: #b7636d;
+        color: white;
+    }
+
+    .gf-acciones-tabla .gf-btn-desactivar:hover {
+        background-color: #994a54;
+        color: white;
+    }
+
+    /* Botón Activar: verde suave */
+    .gf-acciones-tabla .gf-btn-activar {
+        background-color: #48866e;
+        color: white;
+    }
+
+    .gf-acciones-tabla .gf-btn-activar:hover {
+        background-color: #356a55;
+        color: white;
+    }
+
+    .gf-acciones-tabla form {
+        margin: 0;
+    }
+</style>
+
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="mb-1">Gestión de actividades</h1>
+        <p class="text-muted mb-0">
+            Consulta, modifica y administra las actividades de GenteFit.
+        </p>
+    </div>
+
+    <a asp-controller="Actividades"
+       asp-action="Crear"
+       class="btn btn-primary">
+        + Nueva actividad
+    </a>
+</div>
 
 @if (TempData["Error"] is string error)
 {
-    <div class="alert alert-danger">@error</div>
+    <div class="alert alert-danger" role="alert">
+        @error
+    </div>
 }
 
 @if (Model.Count == 0)
 {
-    <p>No hay actividades registradas.</p>
+    <div class="alert alert-info">
+        Todavía no hay actividades registradas.
+        Puedes añadir la primera con el botón
+        «Nueva actividad».
+    </div>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Intensidad</th>
-                <th>Duración</th>
-                <th>Activa</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var actividad in Model)
-            {
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-light">
                 <tr>
-                    <td>@actividad.Id</td>
-                    <td>@actividad.Nombre</td>
-                    <td>@actividad.Descripcion</td>
-                    <td>@actividad.Intensidad</td>
-                    <td>@actividad.DuracionMinutos min</td>
-                    <td>@(actividad.Activa ? "Sí" : "No")</td>
+                    <th scope="col">ID</th>
+                    <th scope="col">Actividad</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col">Intensidad</th>
+                    <th scope="col">Duración</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
                 </tr>
-                <td>
-                    <a asp-action="Editar"
-                       asp-route-id="@actividad.Id"
-                       class="btn btn-secondary btn-sm">
-                        Editar
-                    </a>
+            </thead>
 
-                    @if (actividad.Activa)
-                    {
-                        <form asp-action="Desactivar" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@actividad.Id" />
-                            <button type="submit" class="btn btn-warning btn-sm">
-                                Desactivar
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <form asp-action="Activar" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="@actividad.Id" />
-                            <button type="submit" class="btn btn-success btn-sm">
-                                Activar
-                            </button>
-                        </form>
-                    }
-                </td>
-            }
-        </tbody>
-    </table>
+            <tbody>
+                @foreach (var actividad in Model)
+                {
+                    <tr>
+                        <td>@actividad.Id</td>
+
+                        <td class="fw-semibold">
+                            @actividad.Nombre
+                        </td>
+
+                        <td>@actividad.Descripcion</td>
+
+                        <td>@actividad.Intensidad</td>
+
+                        <td>@actividad.DuracionMinutos min</td>
+
+                        <td>
+                            @if (actividad.Activa)
+                            {
+                                <span class="badge bg-success">
+                                    Activa
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Inactiva
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="gf-acciones-tabla">
+                                <a asp-controller="Actividades"
+                                   asp-action="Editar"
+                                   asp-route-id="@actividad.Id"
+                                   class="gf-btn-tabla gf-btn-editar">
+                                    Editar
+                                </a>
+
+                                @if (actividad.Activa)
+                                {
+                                    <form asp-controller="Actividades"
+                                          asp-action="Desactivar"
+                                          method="post"
+                                          class="d-inline"
+                                          onsubmit="return confirm('¿Seguro que quieres desactivar esta actividad?');">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@actividad.Id" />
+
+                                        <button type="submit"
+                                                class="gf-btn-tabla gf-btn-desactivar">
+                                            Desactivar
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-controller="Actividades"
+                                          asp-action="Activar"
+                                          method="post"
+                                          class="d-inline">
+
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@actividad.Id" />
+
+                                        <button type="submit"
+                                                class="gf-btn-tabla gf-btn-activar">
+                                            Activar
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
