@@ -162,6 +162,9 @@ namespace GenteFit.Persistencia.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool?>("Asistio")
+                        .HasColumnType("bit");
+
                     b.Property<int>("ClienteId")
                         .HasColumnType("int");
 

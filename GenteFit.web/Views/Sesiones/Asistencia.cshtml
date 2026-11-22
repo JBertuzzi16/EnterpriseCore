@@ -1,0 +1,91 @@
+﻿@model GenteFit.web.Models.AsistenciaViewModel
+
+@{
+    ViewData["Title"] = "Control de asistencia";
+    bool haComenzado = Model.FechaHoraInicio <= DateTime.Now;
+}
+
+<h1>Control de asistencia</h1>
+
+<h2>@Model.NombreActividad</h2>
+
+<p>
+    @Model.FechaHoraInicio.ToString("dd/MM/yyyy HH:mm")
+</p>
+
+<div asp-validation-summary="All"
+     class="text-danger"
+     role="alert"></div>
+
+@if (TempData["AsistenciaGuardada"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">
+        @mensaje
+    </div>
+}
+@if (TempData["ErrorAsistencia"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+@if (!haComenzado)
+{
+    <div class="alert alert-info">
+        Puedes consultar los participantes, pero la asistencia
+        se registra cuando haya comenzado la sesión.
+    </div>
+}
+
+@if (Model.Clientes.Count == 0)
+{
+    <p>No hay clientes con reserva confirmada.</p>
+}
+else
+{
+    <form asp-action="Asistencia" method="post">
+        <input asp-for="SesionId" type="hidden" />
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Asistencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Clientes.Count; i++)
+                    {
+                        <tr>
+                            <td>
+                                @Model.Clientes[i].NombreCompleto
+
+                                <input asp-for="Clientes[i].ReservaId"
+                                       type="hidden" />
+                            </td>
+                            <td>
+                                <select asp-for="Clientes[i].Asistio"
+                                        class="form-select"
+                                        aria-label="@($"Asistencia de {Model.Clientes[i].NombreCompleto}")"
+                                        disabled="@(!haComenzado)">
+                                    <option value="">Sin registrar</option>
+                                    <option value="true">Asistió</option>
+                                    <option value="false">No asistió</option>
+                                </select>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <button type="submit"
+                class="btn btn-primary"
+                disabled="@(!haComenzado)">
+            Guardar asistencia
+        </button>
+    </form>
+}
+
+<a asp-action="Index" class="btn btn-secondary mt-3">
+    Volver a sesiones
+</a>

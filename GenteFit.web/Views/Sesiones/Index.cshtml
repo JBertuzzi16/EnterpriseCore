@@ -1,0 +1,124 @@
+﻿@using GenteFit.Persistencia.Entidades
+@model List<Sesion>
+
+@{
+    ViewData["Title"] = "Sesiones";
+    var ahora = DateTime.Now;
+}
+
+<h1>Sesiones</h1>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">
+        @mensaje
+    </div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">
+        @error
+    </div>
+}
+
+<a asp-action="Crear" class="btn btn-primary">
+    Crear sesión
+</a>
+
+@if (Model.Count == 0)
+{
+    <p class="mt-3">No hay sesiones registradas.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Actividad</th>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                    <th>Sala</th>
+                    <th>Monitor</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var sesion in Model)
+                {
+                    <tr>
+                        <td>@sesion.Id</td>
+                        <td>@sesion.Actividad.Nombre</td>
+                        <td>
+                            @sesion.FechaHoraInicio.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+                        <td>
+                            @sesion.FechaHoraFin.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+                        <td>@sesion.Sala.Nombre</td>
+                        <td>
+                            @sesion.Monitor.Nombre @sesion.Monitor.Apellidos
+                        </td>
+                        <td>
+                            @if (sesion.Anulada)
+                            {
+                                <span>Anulada</span>
+                            }
+                            else if (sesion.FechaHoraFin <= ahora)
+                            {
+                                <span>Finalizada</span>
+                            }
+                            else if (sesion.FechaHoraInicio <= ahora)
+                            {
+                                <span>En curso</span>
+                            }
+                            else
+                            {
+                                <span>Programada</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!sesion.Anulada &&
+                                 sesion.FechaHoraInicio > ahora)
+                            {
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a asp-action="Editar"
+                                       asp-route-id="@sesion.Id"
+                                       class="btn btn-secondary btn-sm">
+                                        Editar
+                                    </a>
+
+                                    <form asp-action="Cancelar"
+                                          method="post"
+                                          onsubmit="return confirm('¿Cancelar esta sesión y sus reservas?');">
+                                        <input type="hidden"
+                                               name="id"
+                                               value="@sesion.Id" />
+
+                                        <button type="submit"
+                                                class="btn btn-warning btn-sm">
+                                            Cancelar
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                            @if (!sesion.Anulada)
+                            {
+                                <a asp-action="Asistencia"
+                                   asp-route-id="@sesion.Id"
+                                   class="btn btn-primary btn-sm">
+                                    Asistencia
+                                </a>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -175,7 +175,7 @@ public class SesionRepositorio
             IsolationLevel.Serializable);
 
         if(!_contexto.Actividades.Any(a=>
-        a.Id == sesion.SalaId && a.Activa))
+        a.Id == sesion.ActividadId && a.Activa))
         {
             throw new ArgumentException(
                 "Selecciona una actividad activa.");
@@ -214,5 +214,184 @@ public class SesionRepositorio
 
         return sesion;
     }
+    public List<Sesion> ObtenerTodas()
+    {
+        return _contexto.Sesiones
+            .AsNoTracking()
+            .Include(s => s.Actividad)
+            .Include(s => s.Sala)
+            .Include(s => s.Monitor)
+            .OrderBy(s => s.FechaHoraInicio)
+            .ThenBy(s => s.Id)
+            .ToList();
+    }
+    public Sesion? ObtenerPorId(int id)
+    {
+        return _contexto.Sesiones
+            .Include(s => s.Actividad)
+            .SingleOrDefault(s => s.Id == id);
+    }
+    public bool Actualizar(Sesion datos)
+    {
+        using var transaccion = _contexto.Database.BeginTransaction(
+            IsolationLevel.Serializable);
+
+        var sesion = _contexto.Sesiones.Find(datos.Id);
+
+        if (sesion == null)
+            return false;
+
+        if (sesion.Anulada || sesion.FechaHoraInicio <= DateTime.Now)
+            throw new ArgumentException(
+                "Solo se pueden editar sesiones futuras no anuladas.");
+
+        if (datos.FechaHoraInicio <= DateTime.Now ||
+            datos.FechaHoraFin <= datos.FechaHoraInicio)
+        {
+            throw new ArgumentException(
+                "El inicio debe ser futuro y el fin posterior al inicio.");
+        }
+
+        bool tieneReservas = _contexto.Reservas.Any(r =>
+            r.SesionId == datos.Id &&
+            (r.Estado == EstadoReserva.CONFIRMADA ||
+             r.Estado == EstadoReserva.EN_ESPERA));
+
+        if (tieneReservas)
+            throw new ArgumentException(
+                "No se puede editar una sesión con reservas activas.");
+
+        if (!_contexto.Actividades.Any(a =>
+            a.Id == datos.ActividadId && a.Activa))
+            throw new ArgumentException("Selecciona una actividad activa.");
+
+        if (!_contexto.Salas.Any(s =>
+            s.Id == datos.SalaId && s.Activa))
+            throw new ArgumentException("Selecciona una sala activa.");
+
+        if (!_contexto.Monitores.Any(m =>
+            m.Id == datos.MonitorId && m.Activo))
+            throw new ArgumentException("Selecciona un monitor activo.");
+
+        bool existeSolapamiento = _contexto.Sesiones.Any(s =>
+            s.Id != datos.Id &&
+            !s.Anulada &&
+            s.FechaHoraInicio < datos.FechaHoraFin &&
+            s.FechaHoraFin > datos.FechaHoraInicio &&
+            (s.SalaId == datos.SalaId ||
+             s.MonitorId == datos.MonitorId));
+
+        if (existeSolapamiento)
+            throw new ArgumentException(
+                "La sala o el monitor ya están ocupados en ese horario.");
+
+        sesion.ActividadId = datos.ActividadId;
+        sesion.SalaId = datos.SalaId;
+        sesion.MonitorId = datos.MonitorId;
+        sesion.FechaHoraInicio = datos.FechaHoraInicio;
+        sesion.FechaHoraFin = datos.FechaHoraFin;
+
+        _contexto.SaveChanges();
+        transaccion.Commit();
+
+        return true;
+    }
+
+    public bool Cancelar(int id)
+    {
+        using var transaccion = _contexto.Database.BeginTransaction(
+            IsolationLevel.Serializable);
+
+        var sesion = _contexto.Sesiones.Find(id);
+
+        if (sesion == null)
+            return false;
+
+        if (sesion.Anulada)
+            return true;
+
+        if (sesion.FechaHoraInicio <= DateTime.Now)
+            throw new ArgumentException(
+                "No se puede cancelar una sesión que ya ha comenzado.");
+
+        var reservas = _contexto.Reservas
+            .Where(r => r.SesionId == id &&
+                (r.Estado == EstadoReserva.CONFIRMADA ||
+                 r.Estado == EstadoReserva.EN_ESPERA))
+            .ToList();
+
+        var fechaAnulacion = DateTime.UtcNow;
+
+        foreach (var reserva in reservas)
+        {
+            reserva.Estado = EstadoReserva.ANULADA;
+            reserva.FechaHoraAnulacion = fechaAnulacion;
+        }
+
+        sesion.Anulada = true;
+
+        _contexto.SaveChanges();
+        transaccion.Commit();
+
+        return true;
+    }
+
+    public List<Reserva> ObtenerReservasConfirmadas(int sesionId)
+    {
+        return _contexto.Reservas
+            .AsNoTracking()
+            .Include(r => r.Cliente)
+            .Where(r =>
+                r.SesionId == sesionId &&
+                r.Estado == EstadoReserva.CONFIRMADA)
+            .OrderBy(r => r.Cliente.Apellidos)
+            .ThenBy(r => r.Cliente.Nombre)
+            .ToList();
+    }
+
+    public bool GuardarAsistencia(
+    int sesionId,
+    IReadOnlyDictionary<int, bool?> asistencias)
+    {
+        using var transaccion = _contexto.Database.BeginTransaction(
+            IsolationLevel.Serializable);
+
+        var sesion = _contexto.Sesiones.Find(sesionId);
+
+        if (sesion == null)
+            return false;
+
+        if (sesion.Anulada)
+            throw new ArgumentException(
+                "No se puede registrar asistencia en una sesión anulada.");
+
+        if (sesion.FechaHoraInicio > DateTime.Now)
+            throw new ArgumentException(
+                "La sesión todavía no ha comenzado.");
+
+        var reservas = _contexto.Reservas
+            .Where(r =>
+                r.SesionId == sesionId &&
+                r.Estado == EstadoReserva.CONFIRMADA)
+            .ToList();
+
+        if (reservas.Count != asistencias.Count ||
+            reservas.Any(r => !asistencias.ContainsKey(r.Id)))
+        {
+            throw new ArgumentException(
+                "La lista de participantes ha cambiado. Recarga la página.");
+        }
+
+        foreach (var reserva in reservas)
+        {
+            reserva.Asistio = asistencias[reserva.Id];
+        }
+
+        _contexto.SaveChanges();
+        transaccion.Commit();
+
+        return true;
+    }
+
 
 }

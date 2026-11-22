@@ -23,5 +23,7 @@ public class Reserva
     public int SesionId { get; set; }
 
     public Sesion Sesion { get; set; } = null!;
+
+    public bool? Asistio { get; set; }
 }
 

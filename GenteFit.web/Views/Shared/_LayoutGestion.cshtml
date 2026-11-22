@@ -1,0 +1,76 @@
+﻿@{
+    bool esRecepcion = User.IsInRole("RECEPCIONISTA")
+        || User.IsInRole("ADMIN");
+
+    bool esEncargado = User.IsInRole("ENCARGADO")
+        || User.IsInRole("ADMIN");
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - GenteFit</title>
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;display=swap" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/gentefit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/gentefit-gestion.css" asp-append-version="true" />
+</head>
+
+<body class="gf gf-gestion-body">
+    <header class="gf-cabecera">
+        <a class="gf-marca" asp-controller="Home" asp-action="Index">
+            <img src="~/img/logo-header.png" alt="" />
+            <div class="gf-marca-nombre">
+                <strong>GENTE FIT.</strong>
+                <span>Gestión del centro</span>
+            </div>
+        </a>
+
+        <nav class="gf-menu" aria-label="Menú de gestión">
+            @if (esRecepcion)
+            {
+                <a asp-controller="Recepcion" asp-action="Index">
+                    Clientes
+                </a>
+            }
+
+            @if (esEncargado)
+            {
+                <a asp-controller="Actividades" asp-action="Index">
+                    Actividades
+                </a>
+                <a asp-controller="Salas" asp-action="Index">
+                    Salas
+                </a>
+                <a asp-controller="Sesiones" asp-action="Index">
+                    Sesiones
+                </a>
+            }
+        </nav>
+
+        <form asp-controller="Cuenta" asp-action="Logout" method="post">
+            <button type="submit" class="gf-btn gf-btn-acceder gf-salir">
+                Cerrar sesión
+            </button>
+        </form>
+    </header>
+
+    <main class="gf-gestion">
+        <section class="gf-panel">
+            @RenderBody()
+        </section>
+    </main>
+
+    <footer class="gf-pie">
+        Gente Fit · Sistema de Gestión de Centros Deportivos
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -25,4 +25,6 @@ public class CrearSesionViewModel
 
     public List<SelectListItem> Monitores { get; set; } = new();
 
+    public int Id { get; set; }
+
 }
