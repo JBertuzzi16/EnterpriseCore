@@ -1,0 +1,215 @@
+@model InformesViewModel
+@{
+    ViewData["Title"] = "Informes";
+    var r = Model.Resumen;
+    string desde = Model.Desde.ToString("yyyy-MM-dd");
+    string hasta = Model.Hasta.ToString("yyyy-MM-dd");
+    double maxConfirmadas = Model.Actividades.Count == 0 ? 0 : Model.Actividades.Max(a => a.Confirmadas);
+    int maxAltas = Model.AltasPorMes.Count == 0 ? 0 : Model.AltasPorMes.Max(m => m.Altas);
+    int totalAltas = Model.AltasPorMes.Sum(m => m.Altas);
+}
+
+<div class="gf-solo-impresion">
+    <h1>@Model.Centro.NombreCentro · Informe de actividad</h1>
+    <p class="gf-subtitulo">
+        Periodo: @Model.Desde.ToString("dd/MM/yyyy") - @Model.Hasta.ToString("dd/MM/yyyy") · Generado el @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+        @if (!string.IsNullOrWhiteSpace(Model.Centro.Direccion)) { <br />@Model.Centro.Direccion }
+    </p>
+</div>
+
+<div class="gf-encabezado-pagina gf-no-imprimir">
+    <div>
+        <h1>Estadísticas e informes</h1>
+        <p class="gf-subtitulo">Del @Model.Desde.ToString("dd/MM/yyyy") al @Model.Hasta.ToString("dd/MM/yyyy")</p>
+    </div>
+    <button type="button" class="gf-boton gf-boton-secundario" onclick="window.print()">Imprimir / guardar PDF</button>
+</div>
+
+<form method="get" asp-action="Index" class="gf-filtros gf-no-imprimir" aria-label="Periodo del informe">
+    <div class="gf-campo-admin">
+        <label for="desde">Desde</label>
+        <input id="desde" name="desde" type="date" value="@desde" />
+    </div>
+    <div class="gf-campo-admin">
+        <label for="hasta">Hasta</label>
+        <input id="hasta" name="hasta" type="date" value="@hasta" />
+    </div>
+    <input type="hidden" name="anio" value="@Model.Anio" />
+    <button type="submit" class="gf-boton">Ver informe</button>
+    <a class="gf-boton gf-boton-secundario" asp-action="Index"
+       asp-route-desde="@DateTime.Today.AddDays(-6).ToString("yyyy-MM-dd")" asp-route-hasta="@DateTime.Today.ToString("yyyy-MM-dd")">Últimos 7 días</a>
+    <a class="gf-boton gf-boton-secundario" asp-action="Index"
+       asp-route-desde="@(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).ToString("yyyy-MM-dd"))" asp-route-hasta="@DateTime.Today.ToString("yyyy-MM-dd")">Este mes</a>
+</form>
+
+<section class="gf-cifras" aria-label="Resumen del periodo">
+    <div class="gf-cifra">
+        <span class="gf-cifra-valor">@r.SesionesProgramadas</span>
+        <span class="gf-cifra-etiqueta">Sesiones</span>
+    </div>
+    <div class="gf-cifra">
+        <span class="gf-cifra-valor">@r.ReservasConfirmadas</span>
+        <span class="gf-cifra-etiqueta">Reservas confirmadas</span>
+        <span class="gf-cifra-detalle">@r.ReservasEnEspera en lista de espera</span>
+    </div>
+    <div class="gf-cifra">
+        <span class="gf-cifra-valor">@r.OcupacionMediaPorcentaje.ToString("0.0")&nbsp;%</span>
+        <span class="gf-cifra-etiqueta">Ocupación media</span>
+        <span class="gf-cifra-detalle">plazas ocupadas / ofertadas</span>
+    </div>
+    <div class="gf-cifra">
+        <span class="gf-cifra-valor">@r.ReservasAnuladas</span>
+        <span class="gf-cifra-etiqueta">Anulaciones</span>
+        <span class="gf-cifra-detalle">@r.TasaAnulacionPorcentaje.ToString("0.0")&nbsp;% de las reservas</span>
+    </div>
+    <div class="gf-cifra">
+        <span class="gf-cifra-valor">@r.AltasEnPeriodo</span>
+        <span class="gf-cifra-etiqueta">Altas de clientes</span>
+        <span class="gf-cifra-detalle">@r.ClientesActivos clientes activos en total</span>
+    </div>
+</section>
+
+<div class="gf-rejilla">
+    <section class="gf-bloque" aria-labelledby="titulo-actividades">
+        <div class="gf-encabezado-pagina">
+            <h2 id="titulo-actividades">Actividades más reservadas</h2>
+            <a class="gf-boton gf-boton-secundario gf-boton-pequeno gf-no-imprimir" asp-action="Exportar" asp-route-informe="actividades" asp-route-desde="@desde" asp-route-hasta="@hasta">Exportar CSV</a>
+        </div>
+        @if (Model.Actividades.Count == 0)
+        {
+            <p class="gf-tabla-vacia">No hay sesiones en este periodo.</p>
+        }
+        else
+        {
+            <table class="gf-tabla">
+                <thead>
+                    <tr><th>Actividad</th><th class="gf-num">Sesiones</th><th>Reservas confirmadas</th><th class="gf-num">En espera</th><th class="gf-num">Ocupación</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model.Actividades)
+                    {
+                        <tr>
+                            <td>@a.Actividad</td>
+                            <td class="gf-num">@a.Sesiones</td>
+                            <td class="gf-barra-celda">
+                                <div class="gf-barra" title="@a.Actividad: @a.Confirmadas reservas confirmadas">
+                                    <span class="gf-barra-pista"><span class="gf-barra-relleno" style="width:@CalculosEstadisticas.AnchoBarra(a.Confirmadas, maxConfirmadas).ToString(System.Globalization.CultureInfo.InvariantCulture)%"></span></span>
+                                    <span class="gf-barra-valor">@a.Confirmadas</span>
+                                </div>
+                            </td>
+                            <td class="gf-num">@a.EnEspera</td>
+                            <td class="gf-num">@a.OcupacionMediaPorcentaje.ToString("0.0")&nbsp;%</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
+
+    <section class="gf-bloque" aria-labelledby="titulo-salas">
+        <div class="gf-encabezado-pagina">
+            <h2 id="titulo-salas">Ocupación por sala</h2>
+            <a class="gf-boton gf-boton-secundario gf-boton-pequeno gf-no-imprimir" asp-action="Exportar" asp-route-informe="salas" asp-route-desde="@desde" asp-route-hasta="@hasta">Exportar CSV</a>
+        </div>
+        @if (Model.Salas.Count == 0)
+        {
+            <p class="gf-tabla-vacia">No hay sesiones en este periodo.</p>
+        }
+        else
+        {
+            <table class="gf-tabla">
+                <thead>
+                    <tr><th>Sala</th><th class="gf-num">Sesiones</th><th class="gf-num">Plazas</th><th>Ocupación</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model.Salas)
+                    {
+                        <tr>
+                            <td>@s.Sala</td>
+                            <td class="gf-num">@s.Sesiones</td>
+                            <td class="gf-num">@s.Confirmadas / @s.PlazasOfertadas</td>
+                            <td class="gf-barra-celda">
+                                <div class="gf-barra" title="@s.Sala: @s.OcupacionPorcentaje.ToString("0.0") % de ocupación">
+                                    <span class="gf-barra-pista"><span class="gf-barra-relleno" style="width:@CalculosEstadisticas.AnchoBarra(s.OcupacionPorcentaje, 100).ToString(System.Globalization.CultureInfo.InvariantCulture)%"></span></span>
+                                    <span class="gf-barra-valor">@s.OcupacionPorcentaje.ToString("0.0")&nbsp;%</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
+</div>
+
+<section class="gf-bloque" aria-labelledby="titulo-altas" style="margin-top:1.5rem">
+    <div class="gf-encabezado-pagina">
+        <h2 id="titulo-altas">Altas de clientes por mes · @Model.Anio (@totalAltas en total)</h2>
+        <div class="gf-acciones-fila gf-no-imprimir">
+            <a class="gf-boton gf-boton-secundario gf-boton-pequeno" asp-action="Index" asp-route-desde="@desde" asp-route-hasta="@hasta" asp-route-anio="@(Model.Anio - 1)">&larr; @(Model.Anio - 1)</a>
+            <a class="gf-boton gf-boton-secundario gf-boton-pequeno" asp-action="Index" asp-route-desde="@desde" asp-route-hasta="@hasta" asp-route-anio="@(Model.Anio + 1)">@(Model.Anio + 1) &rarr;</a>
+            <a class="gf-boton gf-boton-secundario gf-boton-pequeno" asp-action="Exportar" asp-route-informe="altas" asp-route-anio="@Model.Anio">Exportar CSV</a>
+        </div>
+    </div>
+    <div class="gf-columnas" role="img" aria-label="Altas de clientes por mes en @Model.Anio">
+        @foreach (var m in Model.AltasPorMes)
+        {
+            double alto = CalculosEstadisticas.AnchoBarra(m.Altas, maxAltas);
+            <div class="gf-columna" title="@m.NombreMes: @m.Altas altas">
+                <span class="gf-columna-valor">@(m.Altas > 0 ? m.Altas.ToString() : "")</span>
+                <span class="gf-columna-barra" style="height:@alto.ToString(System.Globalization.CultureInfo.InvariantCulture)%"></span>
+                <span class="gf-columna-mes">@m.NombreMes[..3]</span>
+            </div>
+        }
+    </div>
+    <details class="gf-detalles gf-no-imprimir" style="margin-top:1rem">
+        <summary>Ver como tabla</summary>
+        <table class="gf-tabla">
+            <thead><tr><th>Mes</th><th class="gf-num">Altas</th></tr></thead>
+            <tbody>
+                @foreach (var m in Model.AltasPorMes)
+                {
+                    <tr><td>@m.NombreMes</td><td class="gf-num">@m.Altas</td></tr>
+                }
+            </tbody>
+        </table>
+    </details>
+</section>
+
+<section class="gf-bloque" aria-labelledby="titulo-sesiones">
+    <div class="gf-encabezado-pagina">
+        <h2 id="titulo-sesiones">Ocupación por sesión (@Model.Sesiones.Count)</h2>
+        <a class="gf-boton gf-boton-secundario gf-boton-pequeno gf-no-imprimir" asp-action="Exportar" asp-route-informe="sesiones" asp-route-desde="@desde" asp-route-hasta="@hasta">Exportar CSV</a>
+    </div>
+    @if (Model.Sesiones.Count == 0)
+    {
+        <p class="gf-tabla-vacia">No hay sesiones en este periodo.</p>
+    }
+    else
+    {
+        <table class="gf-tabla">
+            <thead>
+                <tr><th>Fecha</th><th>Actividad</th><th>Sala</th><th class="gf-num">Confirmadas</th><th class="gf-num">Espera</th><th class="gf-num">Anuladas</th><th>Ocupación</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model.Sesiones)
+                {
+                    <tr>
+                        <td>@s.Inicio.ToString("ddd dd/MM/yyyy HH:mm")</td>
+                        <td>@s.Actividad</td>
+                        <td>@s.Sala</td>
+                        <td class="gf-num">@s.Confirmadas / @s.Aforo</td>
+                        <td class="gf-num">@s.EnEspera</td>
+                        <td class="gf-num">@s.Anuladas</td>
+                        <td class="gf-barra-celda">
+                            <div class="gf-barra">
+                                <span class="gf-barra-pista"><span class="gf-barra-relleno" style="width:@CalculosEstadisticas.AnchoBarra(s.OcupacionPorcentaje, 100).ToString(System.Globalization.CultureInfo.InvariantCulture)%"></span></span>
+                                <span class="gf-barra-valor">@s.OcupacionPorcentaje.ToString("0")&nbsp;%</span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

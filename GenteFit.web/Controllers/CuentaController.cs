@@ -114,7 +114,7 @@ public class CuentaController : Controller
             nameof(Rol.CLIENTE)       => RedirectToAction("Index", "Home"),   // -> catálogo de actividades
             nameof(Rol.RECEPCIONISTA) => RedirectToAction("Index", "Home"),   // -> gestor de clientes
             nameof(Rol.ENCARGADO)     => RedirectToAction("Index", "Home"),   // -> estado de reservas
-            nameof(Rol.ADMIN)         => RedirectToAction("Index", "Home"),   // -> panel de administración
+            nameof(Rol.ADMIN)         => RedirectToAction("Index", "Admin"),  // -> panel de administración
             _                         => RedirectToAction("Index", "Home")
         };
     }

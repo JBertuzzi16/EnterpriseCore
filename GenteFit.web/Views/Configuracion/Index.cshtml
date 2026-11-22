@@ -1,0 +1,123 @@
+@model ConfiguracionViewModel
+@{
+    ViewData["Title"] = "Configuración";
+    var imp = Model.Importacion;
+}
+
+<h1>Configuración</h1>
+<p class="gf-subtitulo">Datos del centro y fuente externa de actividades</p>
+
+@if (imp != null)
+{
+    if (imp.HayError)
+    {
+        <div class="gf-aviso gf-aviso-error" role="alert">
+            No se ha importado nada. @imp.Error
+        </div>
+    }
+    else
+    {
+        <div class="gf-aviso @(imp.Importadas.Count > 0 ? "gf-aviso-exito" : "gf-aviso-info")" role="status">
+            Fuente XML leída: @imp.Leidas actividad(es). Importadas: @imp.Importadas.Count. Omitidas: @imp.Omitidas.Count.
+            @if (imp.Importadas.Count > 0)
+            {
+                <ul>@foreach (var n in imp.Importadas) { <li>@n</li> }</ul>
+            }
+            @if (imp.Omitidas.Count > 0)
+            {
+                <details class="gf-detalles"><summary>Ver omitidas</summary><ul>@foreach (var n in imp.Omitidas) { <li>@n</li> }</ul></details>
+            }
+        </div>
+    }
+
+    if (imp.Avisos.Count > 0)
+    {
+        <div class="gf-aviso gf-aviso-advertencia" role="status">
+            La fuente tenía datos que se han corregido o descartado (@imp.Avisos.Count):
+            <ul>@foreach (var a in imp.Avisos) { <li>@a</li> }</ul>
+        </div>
+    }
+}
+
+<div class="gf-rejilla">
+    <section class="gf-bloque" aria-labelledby="titulo-centro">
+        <h2 id="titulo-centro">Datos del centro</h2>
+        <form asp-action="Index" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="gf-aviso gf-aviso-error" role="alert"></div>
+
+            <div class="gf-campo-admin">
+                <label asp-for="Centro.NombreCentro"></label>
+                <input asp-for="Centro.NombreCentro" />
+                <span asp-validation-for="Centro.NombreCentro" class="gf-campo-error"></span>
+            </div>
+            <div class="gf-campo-admin">
+                <label asp-for="Centro.Direccion"></label>
+                <input asp-for="Centro.Direccion" />
+            </div>
+            <div class="gf-campos-dobles">
+                <div class="gf-campo-admin">
+                    <label asp-for="Centro.Telefono"></label>
+                    <input asp-for="Centro.Telefono" type="tel" />
+                </div>
+                <div class="gf-campo-admin">
+                    <label asp-for="Centro.EmailContacto"></label>
+                    <input asp-for="Centro.EmailContacto" type="email" />
+                    <span asp-validation-for="Centro.EmailContacto" class="gf-campo-error"></span>
+                </div>
+                <div class="gf-campo-admin">
+                    <label asp-for="Centro.HoraApertura"></label>
+                    <input asp-for="Centro.HoraApertura" type="time" value="@Model.Centro.HoraApertura.ToString("HH:mm")" />
+                </div>
+                <div class="gf-campo-admin">
+                    <label asp-for="Centro.HoraCierre"></label>
+                    <input asp-for="Centro.HoraCierre" type="time" value="@Model.Centro.HoraCierre.ToString("HH:mm")" />
+                    <span asp-validation-for="Centro.HoraCierre" class="gf-campo-error"></span>
+                </div>
+            </div>
+
+            <div class="gf-campo-admin">
+                <label asp-for="Centro.RutaFuenteXml"></label>
+                <input asp-for="Centro.RutaFuenteXml" placeholder="C:\GenteFit\actividades.xml" />
+                <span class="gf-ayuda">Fichero XML con el catálogo de actividades que facilita GenteFit.</span>
+            </div>
+
+            <div class="gf-campo-admin">
+                <label>Aforo máximo por sesión</label>
+                <input value="16 personas" readonly />
+                <span class="gf-ayuda">Fijado por la base de datos (restricción CK_Sesion_Aforo).</span>
+            </div>
+
+            <button type="submit" class="gf-boton">Guardar configuración</button>
+            <p class="gf-ayuda" style="margin-top:.8rem">Se guarda en: <code>@Model.RutaFicheroConfiguracion</code></p>
+        </form>
+    </section>
+
+    <section class="gf-bloque" aria-labelledby="titulo-xml">
+        <h2 id="titulo-xml">Importar actividades desde XML</h2>
+        @if (string.IsNullOrWhiteSpace(Model.Centro.RutaFuenteXml))
+        {
+            <p class="gf-ayuda">Indica la ruta de la fuente XML en los datos del centro y guarda la configuración.</p>
+        }
+        else
+        {
+            <p>
+                Fuente: <code>@Model.Centro.RutaFuenteXml</code><br />
+                @if (Model.FuenteXmlExiste)
+                {
+                    <span class="gf-etiqueta gf-etiqueta-activa">Disponible</span>
+                }
+                else
+                {
+                    <span class="gf-etiqueta gf-etiqueta-completa">No encontrada</span>
+                }
+            </p>
+        }
+        <p class="gf-ayuda">
+            Se leen las actividades del fichero y se dan de alta las que todavía no existen (se compara el nombre).
+            Si el fichero no está disponible o está mal formado, se muestra el motivo y no se modifica nada.
+        </p>
+        <form asp-action="ImportarXml" method="post">
+            <button type="submit" class="gf-boton" disabled="@string.IsNullOrWhiteSpace(Model.Centro.RutaFuenteXml)">Importar actividades</button>
+        </form>
+    </section>
+</div>
