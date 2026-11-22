@@ -18,7 +18,22 @@ namespace GenteFit.web.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            if (User.Identity?.IsAuthenticated != true)
+                return RedirectToAction("Login", "Cuenta");
+
+            if (User.IsInRole("ADMIN"))
+                return RedirectToAction("Index", "Admin");
+
+            if (User.IsInRole("RECEPCIONISTA"))
+                return RedirectToAction("Index", "Recepcion");
+
+            if (User.IsInRole("ENCARGADO"))
+                return RedirectToAction("Index", "Sesiones");
+
+            if (User.IsInRole("CLIENTE"))
+                return RedirectToAction("Index", "Cliente");
+
+            return RedirectToAction("AccesoDenegado", "Cuenta");
         }
 
         public IActionResult Privacy()

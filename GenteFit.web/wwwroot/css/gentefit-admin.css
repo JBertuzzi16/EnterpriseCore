@@ -189,3 +189,40 @@ body.gf.gf-portal-admin {
     .gf-columnas { height: 140px; gap: 3px; }
     .gf-columna-mes { font-size: .6rem; }
 }
+
+/* Pantallas compartidas de recepción y encargado */
+.gf-portal-admin .gf-bloque .btn {
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.gf-portal-admin .gf-bloque .btn-primary {
+    --bs-btn-bg: var(--gf-admin-acento);
+    --bs-btn-border-color: var(--gf-admin-acento);
+    --bs-btn-hover-bg: #2c556b;
+    --bs-btn-hover-border-color: #2c556b;
+    --bs-btn-active-bg: #2c556b;
+    --bs-btn-active-border-color: #2c556b;
+}
+
+.gf-portal-admin .gf-bloque .form-control,
+.gf-portal-admin .gf-bloque .form-select {
+    border-radius: 10px;
+    border-color: #b7cad4;
+    color: var(--gf-admin-tinta);
+}
+
+.gf-portal-admin .gf-bloque .table {
+    --bs-table-color: var(--gf-admin-tinta);
+    --bs-table-border-color: var(--gf-admin-borde);
+    font-size: .86rem;
+    vertical-align: middle;
+}
+
+    .gf-portal-admin .gf-bloque .table th {
+        color: var(--gf-admin-tinta-suave);
+        font-size: .72rem;
+        text-transform: uppercase;
+    }

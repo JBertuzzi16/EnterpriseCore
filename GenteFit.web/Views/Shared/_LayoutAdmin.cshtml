@@ -13,13 +13,30 @@
     bool enUsuarios = controlador == "Admin" && accion != "Index";
     // Salas y Actividades ya muestran sus propios mensajes.
     bool mostrarMensajes = controlador is "Admin" or "Informes" or "Configuracion";
+
+    bool esAdmin = User.IsInRole("ADMIN");
+
+    bool puedeRecepcion = esAdmin || User.IsInRole("RECEPCIONISTA");
+    bool puedeGestionar = esAdmin || User.IsInRole("ENCARGADO");
+
+    string nombrePortal = esAdmin
+        ? "Administración"
+        : User.IsInRole("RECEPCIONISTA")
+            ? "Recepción"
+            : "Gestión del centro";
+
+    string controladorInicio = esAdmin
+        ? "Admin"
+        : User.IsInRole("RECEPCIONISTA")
+            ? "Recepcion"
+            : "Sesiones";
 }
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Administración @centro.NombreCentro</title>
+    <title>@ViewData["Title"] - @nombrePortal @centro.NombreCentro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" />
@@ -33,21 +50,67 @@
     <a class="gf-saltar" href="#contenido-principal">Saltar al contenido</a>
 
     <header class="gf-cabecera">
-        <a class="gf-marca" asp-controller="Admin" asp-action="Index" aria-label="Ir al panel de administración">
+        <a class="gf-marca"
+           asp-controller="@controladorInicio"
+           asp-action="Index"
+           aria-label="Ir al inicio">
             <img src="~/img/logo-header.png" alt="Logotipo de GenteFit" />
             <span class="gf-marca-nombre">
                 <strong>GENTE FIT.</strong>
-                <span>Administración</span>
+                <span>@nombrePortal</span>
             </span>
         </a>
 
-        <nav class="gf-menu" aria-label="Menú de administración">
-            <a asp-controller="Admin" asp-action="Index" class="@Activo("Admin", "Index")" aria-current="@Actual("Admin", "Index")">Panel</a>
-            <a asp-controller="Admin" asp-action="Usuarios" class="@(enUsuarios ? "gf-nav-activo" : "")" aria-current="@(enUsuarios ? "page" : null)">Usuarios</a>
-            <a asp-controller="Informes" asp-action="Index" class="@Activo("Informes")" aria-current="@Actual("Informes")">Informes</a>
-            <a asp-controller="Configuracion" asp-action="Index" class="@Activo("Configuracion")" aria-current="@Actual("Configuracion")">Configuración</a>
-            <a asp-controller="Salas" asp-action="Index">Salas</a>
-            <a asp-controller="Actividades" asp-action="Index">Actividades</a>
+        <nav class="gf-menu" aria-label="Menú principal">
+            @if (esAdmin)
+            {
+                <a asp-controller="Admin" asp-action="Index"
+                   class="@Activo("Admin", "Index")"
+                   aria-current="@Actual("Admin", "Index")">
+                    Panel
+                </a>
+
+                <a asp-controller="Admin" asp-action="Usuarios"
+                   class="@(enUsuarios ? "gf-nav-activo" : "")">
+                    Usuarios
+                </a>
+
+                <a asp-controller="Informes" asp-action="Index"
+                   class="@Activo("Informes")">
+                    Informes
+                </a>
+
+                <a asp-controller="Configuracion" asp-action="Index"
+                   class="@Activo("Configuracion")">
+                    Configuración
+                </a>
+            }
+
+            @if (puedeRecepcion)
+            {
+                <a asp-controller="Recepcion" asp-action="Index"
+                   class="@Activo("Recepcion")">
+                    Clientes
+                </a>
+            }
+
+            @if (puedeGestionar)
+            {
+                <a asp-controller="Salas" asp-action="Index"
+                   class="@Activo("Salas")">
+                    Salas
+                </a>
+
+                <a asp-controller="Actividades" asp-action="Index"
+                   class="@Activo("Actividades")">
+                    Actividades
+                </a>
+
+                <a asp-controller="Sesiones" asp-action="Index"
+                   class="@Activo("Sesiones")">
+                    Sesiones
+                </a>
+            }
         </nav>
 
         <div class="gf-sesion">
@@ -74,7 +137,7 @@
     </main>
 
     <footer class="gf-pie gf-admin-pie">
-        <span>@centro.NombreCentro - Panel de administración</span>
+        <span>@centro.NombreCentro - @nombrePortal</span>
         <span>Horario: @centro.HoraApertura.ToString("HH:mm") - @centro.HoraCierre.ToString("HH:mm")</span>
     </footer>
 
