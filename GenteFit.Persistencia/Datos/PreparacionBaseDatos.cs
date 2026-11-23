@@ -1,4 +1,5 @@
 using GenteFit.Persistencia.Entidades;
+using GenteFit.Persistencia.Excepciones;
 using GenteFit.Persistencia.Repositorios;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,9 +39,20 @@ public static class PreparacionBaseDatos
         {
             string email = emailAdministrador.Trim();
 
-            if (contexto.Usuarios.Any(u => u.Email == email))
+            Usuario? existente = contexto.Usuarios.FirstOrDefault(u => u.Email == email);
+            if (existente != null)
             {
-                pasos.Add($"Ya existe una cuenta con el email {email}: no se crea de nuevo.");
+                // El email ya existe (por ejemplo, admin@gentefit.test de los datos de demostración,
+                // o una base de datos que ya se usaba). Si es un administrador, se le pone la
+                // contraseña indicada en el instalador para que se pueda entrar con ella.
+                if (existente.Rol != Rol.ADMIN)
+                    throw new GenteFitException(
+                        $"El email {email} ya pertenece a una cuenta de {existente.Rol}. Indica otro email para el administrador.");
+
+                var repositorio = new AdminUsuarioRepositorio(contexto);
+                repositorio.RestablecerContrasena(existente.Id, contrasenaAdministrador);
+                repositorio.Activar(existente.Id);
+                pasos.Add($"Ya existe un administrador con el email {email}: se actualiza su contraseña.");
             }
             else
             {

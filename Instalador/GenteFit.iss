@@ -179,7 +179,7 @@ begin
     'Administrador', 'Cuenta del primer administrador de GenteFit.',
     'Con esta cuenta se entra en el panel de administración para crear el resto de usuarios. ' +
     'La contraseña debe tener al menos 8 caracteres, con letras y números.' + #13#10 +
-    'Si la base de datos ya tiene un usuario con este email, no se modifica.');
+    'Si ese email ya es un administrador de la base de datos, se le pone esta contraseña.');
   PaginaAdmin.Add('Email del administrador:', False);
   PaginaAdmin.Add('Contraseña:', True);
   PaginaAdmin.Add('Repite la contraseña:', True);
