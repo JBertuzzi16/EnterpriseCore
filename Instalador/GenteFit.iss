@@ -19,6 +19,12 @@
 #define Ejecutable    "GenteFit.web.exe"
 #define Puerto        "5190"
 
+; Si la aplicación no está publicada, el setup.exe saldría sin GenteFit.web.exe y fallaría al instalar.
+; Esta comprobación hace que la compilación se pare con un mensaje claro.
+#if !FileExists(AddBackslash(SourcePath) + "publicacion\" + Ejecutable)
+  #error Falta publicacion\GenteFit.web.exe: la aplicación no está publicada. No compiles este fichero desde Inno Setup; ejecuta crear-instalador.cmd.
+#endif
+
 [Setup]
 AppId={{6B0E2F7C-5A1D-4C55-9F1E-2C7B8E0A4F59}
 AppName={#NombreApp}
@@ -279,9 +285,22 @@ begin
 
   WizardForm.StatusLabel.Caption := 'Creando la base de datos de GenteFit...';
 
+  if not FileExists(ExpandConstant('{app}\{#Ejecutable}')) then
+  begin
+    MsgBox('Falta el programa ' + ExpandConstant('{app}\{#Ejecutable}') + '.' + #13#10#13#10 +
+           'Este setup.exe se generó sin publicar la aplicación, o el antivirus ha bloqueado el fichero. ' +
+           'Genera el instalador con crear-instalador.cmd y vuelve a instalar.', mbError, MB_OK);
+    Exit;
+  end;
+
   { GenteFit.web.exe guarda el resultado en preparar-bd.log (en la carpeta de instalación). }
   if not Exec(ExpandConstant('{app}\{#Ejecutable}'), Parametros, ExpandConstant('{app}'),
-              SW_HIDE, ewWaitUntilTerminated, Codigo) or (Codigo <> 0) then
+              SW_HIDE, ewWaitUntilTerminated, Codigo) then
+  begin
+    MsgBox('No se ha podido ejecutar ' + ExpandConstant('{app}\{#Ejecutable}') + ':' + #13#10 +
+           SysErrorMessage(Codigo), mbError, MB_OK);
+  end
+  else if Codigo <> 0 then
   begin
     MsgBox('GenteFit se ha instalado, pero no se ha podido preparar la base de datos.' + #13#10#13#10 +
            'Comprueba que SQL Server está en marcha y que el servidor "' + PaginaSql.Values[0] + '" es correcto.' + #13#10 +

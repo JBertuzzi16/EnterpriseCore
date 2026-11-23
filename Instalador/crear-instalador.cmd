@@ -14,9 +14,17 @@ echo.
 echo [1/3] Limpiando la publicacion anterior...
 if exist "Instalador\publicacion" rmdir /s /q "Instalador\publicacion"
 
+rem Hace falta el SDK de .NET 10 (el de Visual Studio 2022 no sirve).
+where dotnet >nul 2>nul
+if errorlevel 1 goto sinsdk
+dotnet --list-sdks | findstr /b "10." >nul
+if errorlevel 1 goto sinsdk
+
 echo [2/3] Publicando GenteFit.web (Release, win-x64, autocontenida)...
 dotnet publish "GenteFit.web\GenteFit.web.csproj" -c Release -r win-x64 --self-contained true -o "Instalador\publicacion" -nologo
 if errorlevel 1 goto error
+
+if not exist "Instalador\publicacion\GenteFit.web.exe" goto sinexe
 
 rem La configuracion de desarrollo no se instala.
 if exist "Instalador\publicacion\appsettings.Development.json" del /q "Instalador\publicacion\appsettings.Development.json"
@@ -43,6 +51,20 @@ echo Instalador creado: %CD%\Instalador\Salida\setup.exe
 echo.
 pause
 exit /b 0
+
+:sinsdk
+echo.
+echo No se encuentra el SDK de .NET 10. Instala Visual Studio 2026 o el SDK de .NET 10
+echo desde https://dotnet.microsoft.com/download y vuelve a ejecutar este fichero.
+echo SDK instalados ahora:
+dotnet --list-sdks 2>nul
+goto error
+
+:sinexe
+echo.
+echo La publicacion ha terminado sin Instalador\publicacion\GenteFit.web.exe.
+echo Si un antivirus lo ha bloqueado, permite la carpeta del proyecto y vuelve a intentarlo.
+goto error
 
 :error
 echo.
