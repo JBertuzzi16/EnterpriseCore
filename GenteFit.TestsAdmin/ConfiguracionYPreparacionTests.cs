@@ -1,5 +1,6 @@
 using GenteFit.Persistencia.Datos;
 using GenteFit.Persistencia.Entidades;
+using GenteFit.Persistencia.Excepciones;
 using GenteFit.Persistencia.Repositorios;
 using GenteFit.Web.Servicios;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -105,7 +106,7 @@ public class PreparacionBaseDatosTests : BaseDatosPrueba
 
         Assert.Equal(usuarios, ContextoNuevo().Usuarios.Count());
         Assert.Equal(sesiones, ContextoNuevo().Sesiones.Count());
-        Assert.Contains(pasos, p => p.StartsWith("Ya existe una cuenta"));
+        Assert.Contains(pasos, p => p.StartsWith("Ya existe un administrador"));
     }
 
     [Fact]
@@ -117,6 +118,28 @@ public class PreparacionBaseDatosTests : BaseDatosPrueba
 
         Assert.True(resumen.SesionesProgramadas > 0);
         Assert.True(resumen.ReservasConfirmadas > 0);
+    }
+
+    [Fact]
+    public void Preparar_EmailDelAdminDeDemo_EntraConLaContrasenaDelInstalador()
+    {
+        // Los datos de demostración ya crean admin@gentefit.test con otra contraseña.
+        PreparacionBaseDatos.Preparar(Contexto, "admin@gentefit.test", "Admin2026", cargarDatosDemo: true);
+
+        Usuario? admin = new UsuarioRepositorio(ContextoNuevo()).ValidarCredenciales("admin@gentefit.test", "Admin2026");
+        Assert.NotNull(admin);
+        Assert.Equal(Rol.ADMIN, admin.Rol);
+    }
+
+    [Fact]
+    public void Preparar_EmailDeOtroRol_SeRechazaSinTocarLaCuenta()
+    {
+        Assert.Throws<GenteFitException>(() =>
+            PreparacionBaseDatos.Preparar(Contexto, "recepcion@gentefit.test", "Admin2026", cargarDatosDemo: true));
+
+        Usuario? recepcion = new UsuarioRepositorio(ContextoNuevo()).ValidarCredenciales("recepcion@gentefit.test", DatosIniciales.ContrasenaPrueba);
+        Assert.NotNull(recepcion);
+        Assert.Equal(Rol.RECEPCIONISTA, recepcion.Rol);
     }
 
     [Fact]
