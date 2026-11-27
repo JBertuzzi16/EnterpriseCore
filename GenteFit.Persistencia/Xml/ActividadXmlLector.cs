@@ -1,5 +1,6 @@
 using System.Xml.Linq;
 using GenteFit.Persistencia.Entidades;
+using System.Globalization;
 
 namespace GenteFit.Persistencia.Xml;
 
@@ -41,8 +42,33 @@ public class ActividadXmlLector : LectorXmlBase<Actividad>
             avisos.Add($"{ubicacion} ({nombre}): duración ausente o no válida, se asignan {DuracionPorDefecto} minutos.");
             actividad.DuracionMinutos = DuracionPorDefecto;
         }
+
         else actividad.DuracionMinutos = duracion.Value;
 
+        // Recuperamos el identificador original de GenteFit.
+        // Es necesario para relacionar los registros con Odoo.
+        var textoId = e.Attribute("id")?.Value;
+
+        if (textoId != null)
+        {
+            if (!int.TryParse(
+                textoId,
+                NumberStyles.None,
+                CultureInfo.InvariantCulture,
+                out int id) || id <= 0)
+            {
+                avisos.Add(
+                    $"{ubicacion} ({nombre}): identificador XML no válido. " +
+                    "Se descarta el registro.");
+
+                return null;
+            }
+
+            actividad.Id = id;
+        }
+
+        // Los XML antiguos sin atributo id siguen siendo válidos.
+        // En ese caso, el identificador permanece en 0.
         return actividad;
     }
 }
